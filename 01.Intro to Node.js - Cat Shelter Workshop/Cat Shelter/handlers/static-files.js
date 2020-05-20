@@ -15,28 +15,58 @@ function getContentType(url) {
 }
 
 module.exports = (req, res) => {
-	const pathname = url.parse(req.url).pathname;
+	const pathName = url.parse(req.url).pathname;
 
-	if (pathname.startsWith('/content') && req.method === 'GET') {
-		fs.readFile(`./${pathname}`, 'utf-8', (err, data) => {
-			if (err) {
-				console.log(err);
-				res.writeHead(404, {
-					'Content-Type': 'text/plain'
+	if (pathName.startsWith('/content') && req.method === 'GET') {
+		if (
+			pathName.endsWith('jpg') ||
+			pathName.endsWith('png') ||
+			pathName.endsWith('jpeg') ||
+			pathName.endsWith('ico')
+		) {
+			fs.readFile(`./${pathName}`, (err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, {
+						'Content-Type': 'text/plain'
+					});
+
+					res.write('Page not found!');
+					res.end();
+					return true;
+				}
+
+				console.log(pathName);
+				res.writeHead(200, {
+					'Content-Type': getContentType(pathName)
 				});
 
-				res.write('Page not found!');
+				res.write(data);
 				res.end();
-				return;
-			}
-
-			console.log(pathname);
-			res.writeHead(200, {
-				'Content-Type': getContentType(pathname)
 			});
+		} else {
+			fs.readFile(`./${pathName}`, 'utf-8', (err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, {
+						'Content-Type': 'text/plain'
+					});
 
-			res.write(data);
-			res.end();
-		});
+					res.write('Page not found!');
+					res.end();
+					return true;
+				}
+
+				console.log(pathName);
+				res.writeHead(200, {
+					'Content-Type': getContentType(pathName)
+				});
+
+				res.write(data);
+				res.end();
+			});
+		}
+	} else {
+		return true;
 	}
 };
