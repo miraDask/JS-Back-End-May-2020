@@ -135,24 +135,33 @@ module.exports = async (req, res) => {
 			console.log(err);
 		});
 	} else if (pathName.includes('/cats-edit') && req.method === 'GET') {
-		const cat = cats.filter((x) => x.id == getCurrentCatId(pathName))[0];
 		const stream = fs.createReadStream(catsEditFilePath);
 
 		stream.on('data', (data) => {
-			fs.readFile(breedsDataFilePath, (err, breedsData) => {
+			fs.readFile(catsDataFilePath, (err, catsData) => {
 				if (err) {
 					console.log(err);
 					return;
 				}
 
-				const breeds = JSON.parse(breedsData);
-				const breedsPlaceholder = breeds.map((x) => `<option value="${x}">${x}</option>`);
-				let modifiedData = data.toString().replace('{{Breeds}}', breedsPlaceholder);
-				modifiedData = modifiedData.replace('{{id}}', cat.id);
-				modifiedData = modifiedData.replace('{{catName}}', cat.name);
-				modifiedData = modifiedData.replace('{{catDescription}}', cat.description);
-				res.write(modifiedData);
-				res.end();
+				let cats = JSON.parse(catsData);
+				const cat = cats.filter((x) => x.id == getCurrentCatId(pathName))[0];
+
+				fs.readFile(breedsDataFilePath, (err, breedsData) => {
+					if (err) {
+						console.log(err);
+						return;
+					}
+
+					const breeds = JSON.parse(breedsData);
+					const breedsPlaceholder = breeds.map((x) => `<option value="${x}">${x}</option>`);
+					let modifiedData = data.toString().replace('{{Breeds}}', breedsPlaceholder);
+					modifiedData = modifiedData.replace('{{id}}', cat.id);
+					modifiedData = modifiedData.replace('{{catName}}', cat.name);
+					modifiedData = modifiedData.replace('{{catDescription}}', cat.description);
+					res.write(modifiedData);
+					res.end();
+				});
 			});
 		});
 
@@ -160,6 +169,57 @@ module.exports = async (req, res) => {
 			console.log(err);
 		});
 	} else if (pathName.includes('/cats-edit') && req.method === 'POST') {
+		let form = new formidable.IncomingForm();
+
+		form.parse(req, (err, fields, files) => {
+			if (err) {
+				console.log(err);
+				return true;
+			}
+
+			if (files.upload.name) {
+				const oldPath = files.upload.path;
+				const newPath = path.normalize(path.join(appPath, '/content/images/' + files.upload.name));
+
+				mv(oldPath, newPath, (err) => {
+					if (err) {
+						console.log(err);
+						return true;
+					}
+
+					console.log('File is uploaded successfully!');
+				});
+			}
+
+			fs.readFile(catsDataFilePath, (err, data) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
+
+				const catId = getCurrentCatId(pathName);
+				const catsAll = JSON.parse(data);
+				const catIndex = catsAll.findIndex((x) => x.id == catId);
+				let cat = catsAll[catIndex];
+				const editedCat = {
+					id: cat.id,
+					image: files.upload.name ? files.upload.name : cat.image,
+					...fields
+				};
+
+				catsAll[catIndex] = editedCat;
+
+				const json = JSON.stringify(catsAll);
+
+				fs.writeFile(catsDataFilePath, json, 'utf-8', () => {
+					console.log('cats updated');
+					res.writeHead(302, {
+						Location: '/'
+					});
+					res.end();
+				});
+			});
+		});
 	} else if (pathName.includes('/cats-find-new-home') && req.method === 'GET') {
 		const cat = cats.filter((x) => x.id == getCurrentCatId(pathName))[0];
 
@@ -186,6 +246,25 @@ module.exports = async (req, res) => {
 			console.log(err);
 		});
 	} else if (pathName.includes('/cats-find-new-home') && req.method === 'POST') {
+		const catId = getCurrentCatId(pathName);
+		fs.readFile(catsDataFilePath, (err, data) => {
+			if (err) {
+				console.log(err);
+				return;
+			}
+
+			let catsAll = JSON.parse(data);
+			catsAll = catsAll.filter((x) => x.id != catId);
+			const json = JSON.stringify(catsAll);
+
+			fs.writeFile(catsDataFilePath, json, 'utf-8', () => {
+				console.log('cats updated');
+				res.writeHead(302, {
+					Location: '/'
+				});
+				res.end();
+			});
+		});
 	} else {
 		return true;
 	}
