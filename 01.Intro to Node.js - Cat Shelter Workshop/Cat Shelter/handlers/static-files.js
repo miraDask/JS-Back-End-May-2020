@@ -9,6 +9,8 @@ function getContentType(url) {
 		return 'text/javascript';
 	} else if (url.endsWith('png')) {
 		return 'image/png';
+	} else if (url.endsWith('jpg')) {
+		return 'image/jpg';
 	} else if (url.endsWith('ico')) {
 		return 'image/vnd.microsoft.icon';
 	}

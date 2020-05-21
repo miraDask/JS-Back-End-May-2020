@@ -1,5 +1,6 @@
 const url = require('url');
 const fs = require('fs');
+const mv = require('mv');
 const path = require('path');
 const querystring = require('querystring');
 const formidable = require('formidable');
@@ -11,6 +12,7 @@ module.exports = (req, res) => {
 	const catsFilePath = path.normalize(path.join(__dirname, '../views/addCat.html'));
 	const breedsFilePath = path.normalize(path.join(__dirname, '../views/addBreed.html'));
 	const breedsDataFilePath = path.normalize(path.join(__dirname, '../data/breeds.json'));
+	const catsDataFilePath = path.normalize(path.join(__dirname, '../data/cats.json'));
 
 	if (pathName === '/cats/add-cat' && req.method === 'GET') {
 		const stream = fs.createReadStream(catsFilePath);
@@ -29,6 +31,50 @@ module.exports = (req, res) => {
 			console.log(err);
 		});
 	} else if (pathName === '/cats/add-cat' && req.method === 'POST') {
+		let form = new formidable.IncomingForm();
+
+		form.parse(req, (err, fields, files) => {
+			if (err) {
+				console.log(err);
+				return true;
+			}
+
+			const oldPath = files.upload.path;
+			const newPath = path.normalize(path.join(appPath, '/content/images/' + files.upload.name));
+
+			mv(oldPath, newPath, (err) => {
+				if (err) {
+					console.log(err);
+					return true;
+				}
+
+				console.log('File is uploaded successfully!');
+			});
+
+			fs.readFile(catsDataFilePath, (err, data) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
+
+				const catsAll = JSON.parse(data);
+				catsAll.push({
+					id: catsAll.length + 1,
+					image: files.upload.name,
+					...fields
+				});
+
+				const json = JSON.stringify(catsAll);
+
+				fs.writeFile(catsDataFilePath, json, 'utf-8', () => {
+					console.log('cats updated');
+					res.writeHead(302, {
+						Location: '/'
+					});
+					res.end();
+				});
+			});
+		});
 	} else if (pathName === '/cats/add-breed' && req.method === 'GET') {
 		const stream = fs.createReadStream(breedsFilePath);
 
@@ -61,13 +107,14 @@ module.exports = (req, res) => {
 				breeds.push(body.breed);
 				const json = JSON.stringify(breeds);
 
-				fs.writeFile(breedsDataFilePath, json, 'utf-8', () => console.log('breeds updated'));
+				fs.writeFile(breedsDataFilePath, json, 'utf-8', () => {
+					console.log('breeds updated');
+					res.writeHead(302, {
+						Location: '/'
+					});
+					res.end();
+				});
 			});
-
-			res.writeHead(302, {
-				Location: '/'
-			});
-			res.end();
 		});
 
 		req.on('error', (err) => {
