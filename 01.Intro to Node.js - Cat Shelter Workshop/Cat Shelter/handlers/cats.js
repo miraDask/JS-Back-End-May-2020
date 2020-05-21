@@ -7,24 +7,38 @@ const formidable = require('formidable');
 const cats = require('../data/cats.json');
 const breeds = require('../data/breeds.json');
 
-module.exports = (req, res) => {
+const addCatFilePath = path.normalize(path.join(__dirname, '../views/addCat.html'));
+const catsEditFilePath = path.normalize(path.join(__dirname, '../views/editCat.html'));
+
+const breedsFilePath = path.normalize(path.join(__dirname, '../views/addBreed.html'));
+const breedsDataFilePath = path.normalize(path.join(__dirname, '../data/breeds.json'));
+const catsDataFilePath = path.normalize(path.join(__dirname, '../data/cats.json'));
+const catShelterFilePath = path.normalize(path.join(__dirname, '../views/catShelter.html'));
+
+const getCurrentCatId = (pathName) => {
+	const splittedPathName = pathName.split('/');
+	return splittedPathName[splittedPathName.length - 1];
+};
+
+module.exports = async (req, res) => {
 	const pathName = url.parse(req.url).pathname;
-	const catsFilePath = path.normalize(path.join(__dirname, '../views/addCat.html'));
-	const breedsFilePath = path.normalize(path.join(__dirname, '../views/addBreed.html'));
-	const breedsDataFilePath = path.normalize(path.join(__dirname, '../data/breeds.json'));
-	const catsDataFilePath = path.normalize(path.join(__dirname, '../data/cats.json'));
 
 	if (pathName === '/cats/add-cat' && req.method === 'GET') {
-		const stream = fs.createReadStream(catsFilePath);
+		const stream = fs.createReadStream(addCatFilePath);
 
 		stream.on('data', (data) => {
-			const breedsPlaceholder = breeds.map((x) => `<option value="${x}">${x}</option>`);
-			const modifiedData = data.toString().replace('{{Breeds}}', breedsPlaceholder);
-			res.write(modifiedData);
-		});
+			fs.readFile(breedsDataFilePath, (err, breedsData) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
 
-		stream.on('end', () => {
-			res.end();
+				const breeds = JSON.parse(breedsData);
+				const breedsPlaceholder = breeds.map((x) => `<option value="${x}">${x}</option>`);
+				const modifiedData = data.toString().replace('{{Breeds}}', breedsPlaceholder);
+				res.write(modifiedData);
+				res.end();
+			});
 		});
 
 		stream.on('error', (err) => {
@@ -120,6 +134,58 @@ module.exports = (req, res) => {
 		req.on('error', (err) => {
 			console.log(err);
 		});
+	} else if (pathName.includes('/cats-edit') && req.method === 'GET') {
+		const cat = cats.filter((x) => x.id == getCurrentCatId(pathName))[0];
+		const stream = fs.createReadStream(catsEditFilePath);
+
+		stream.on('data', (data) => {
+			fs.readFile(breedsDataFilePath, (err, breedsData) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
+
+				const breeds = JSON.parse(breedsData);
+				const breedsPlaceholder = breeds.map((x) => `<option value="${x}">${x}</option>`);
+				let modifiedData = data.toString().replace('{{Breeds}}', breedsPlaceholder);
+				modifiedData = modifiedData.replace('{{id}}', cat.id);
+				modifiedData = modifiedData.replace('{{catName}}', cat.name);
+				modifiedData = modifiedData.replace('{{catDescription}}', cat.description);
+				res.write(modifiedData);
+				res.end();
+			});
+		});
+
+		req.on('error', (err) => {
+			console.log(err);
+		});
+	} else if (pathName.includes('/cats-edit') && req.method === 'POST') {
+	} else if (pathName.includes('/cats-find-new-home') && req.method === 'GET') {
+		const cat = cats.filter((x) => x.id == getCurrentCatId(pathName))[0];
+
+		const stream = fs.createReadStream(catShelterFilePath);
+
+		stream.on('data', (data) => {
+			const imageSrc = path.join('../content/images/' + cat.image);
+			let modifiedData = data
+				.toString()
+				.replace('{{Breed}}', `<option value="${cat.breed}">${cat.breed}</option>`);
+			modifiedData = modifiedData.replace('{{imageSrc}}', imageSrc);
+			modifiedData = modifiedData.replace('{{id}}', cat.id);
+			modifiedData = modifiedData.replace('{{catName}}', cat.name);
+			modifiedData = modifiedData.replace('{{catDescription}}', cat.description);
+
+			res.write(modifiedData);
+		});
+
+		stream.on('end', () => {
+			res.end();
+		});
+
+		stream.on('error', (err) => {
+			console.log(err);
+		});
+	} else if (pathName.includes('/cats-find-new-home') && req.method === 'POST') {
 	} else {
 		return true;
 	}
