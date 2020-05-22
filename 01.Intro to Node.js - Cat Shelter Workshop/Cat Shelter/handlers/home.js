@@ -6,7 +6,7 @@ const catsDataFilePath = path.normalize(path.join(__dirname, '../data/cats.json'
 
 module.exports = (req, res) => {
 	const pathName = url.parse(req.url).pathname;
-	if (pathName === '/' && req.method === 'GET') {
+	if ((pathName === '/' || pathName === '/search') && req.method === 'GET') {
 		const filePath = path.normalize(path.join(__dirname, '../views/home/index.html'));
 		fs.readFile(filePath, (err, data) => {
 			if (err) {
@@ -31,7 +31,16 @@ module.exports = (req, res) => {
 					return;
 				}
 
-				const cats = JSON.parse(catsData);
+				let cats = JSON.parse(catsData);
+
+				const query = url.parse(req.url, true).query;
+				if (pathName === '/search' && query.text) {
+					const text = query.text.toLowerCase();
+					cats = cats.filter(
+						(x) => x.name.toLowerCase().includes(text) || x.description.toLowerCase().includes(text)
+					);
+				}
+
 				const modifiedCats = cats.map(
 					(cat) =>
 						`<li>
