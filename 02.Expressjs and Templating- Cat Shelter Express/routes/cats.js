@@ -55,11 +55,33 @@ const createNewCat = async (fileName, ...fields) => {
 	try {
 		await writeFile(catsDataFilePath, json, 'utf-8');
 	} catch (err) {
-		console.log(err.message);
+		console.error(err.message);
+		return;
 	}
 
 	return console.log('cats updated');
 };
+
+// const updateCat = async (catId, fileName, ...fields) => {
+// 	const catsAll = await getAllCats();
+// 	const catIndex = catsAll.findIndex((x) => x.id == catId);
+// 	const cat = catsAll[catIndex];
+// 	const editedCat = {
+// 		id: cat.id,
+// 		image: fileName ? fileName : cat.image,
+// 		...fields
+// 	};
+
+// 	catsAll[catIndex] = editedCat;
+// 	const json = JSON.stringify(catsAll);
+
+// 	try {
+// 		await writeFile(catsDataFilePath, json, 'utf-8');
+// 		return console.log(`cat with id: ${id} was updated.`);
+// 	} catch (err) {
+// 		return console.log(err.message);
+// 	}
+// };
 
 const deleteCat = async (catId) => {
 	const catsAll = await getAllCats();
@@ -84,23 +106,29 @@ route.post('/add-cat', (req, res) => {
 
 	form.parse(req, async (err, fields, files) => {
 		if (err) {
-			console.log(err);
-			return true;
+			return console.log(err.message);
 		}
 
-		const oldPath = files.upload.path;
-		const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
-
-		mv(oldPath, newPath, (err) => {
+		form.parse(req, async (err, fields, files) => {
 			if (err) {
 				console.log(err);
-				return true;
+				return;
 			}
-			console.log('File is uploaded successfully!');
-		});
 
-		await createNewCat(files.upload.name, ...fields);
-		res.redirect(302, '/');
+			const oldPath = files.upload.path;
+			const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
+
+			mv(oldPath, newPath, (err) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				console.log('File is uploaded successfully!');
+			});
+
+			await createNewCat(files.upload.name, ...fields);
+			res.redirect(302, '/');
+		});
 	});
 });
 
@@ -113,6 +141,54 @@ route.post('/find-new-home/:id', async (req, res) => {
 	const catId = req.params.id;
 	await deleteCat(catId);
 	res.redirect(302, '/');
+});
+
+route.get('/edit/:id', getBreeds, async (req, res) => {
+	const cat = await getCurrentCat(req.params.id);
+	const breeds = req.breeds.filter((x) => x != cat.breed);
+	res.render('cat-edit', { cat, breeds });
+});
+
+route.post('/edit/:id', async (req, res) => {
+	const form = new formidable.IncomingForm();
+	const catId = req.params.id;
+
+	form.parse(req, async (err, fields, files) => {
+		if (err) {
+			return console.log(err.message);
+		}
+
+		if (files.upload.name) {
+			const oldPath = files.upload.path;
+			const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
+			mv(oldPath, newPath, (err) => {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				console.log('File is uploaded successfully!');
+			});
+		}
+
+		let catsAll = await getAllCats();
+		const catIndex = catsAll.findIndex((x) => x.id == catId);
+		const cat = catsAll[catIndex];
+		const editedCat = {
+			id: cat.id,
+			image: files.upload.name ? files.upload.name : cat.image,
+			...fields
+		};
+
+		catsAll[catIndex] = editedCat;
+		const json = JSON.stringify(catsAll);
+
+		try {
+			const result = await writeFile(catsDataFilePath, json, 'utf-8');
+			res.redirect(302, '/');
+		} catch (err) {
+			return console.log(err.message);
+		}
+	});
 });
 
 module.exports = route;
