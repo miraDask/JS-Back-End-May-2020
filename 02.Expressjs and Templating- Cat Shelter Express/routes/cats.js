@@ -35,6 +35,12 @@ const getAllCats = async () => {
 	return JSON.parse(data);
 };
 
+const getCurrentCat = async (catId) => {
+	const data = await getAllCats();
+	const cat = data.filter((cat) => cat.id == catId)[0];
+	return cat;
+};
+
 const createNewCat = async (fileName, ...fields) => {
 	let catsAll = await getAllCats();
 
@@ -45,6 +51,20 @@ const createNewCat = async (fileName, ...fields) => {
 	});
 
 	const json = JSON.stringify(catsAll);
+
+	try {
+		await writeFile(catsDataFilePath, json, 'utf-8');
+	} catch (err) {
+		console.log(err.message);
+	}
+
+	return console.log('cats updated');
+};
+
+const deleteCat = async (catId) => {
+	const catsAll = await getAllCats();
+	const allWithoutDeletedCat = catsAll.filter((x) => x.id != catId);
+	const json = JSON.stringify(allWithoutDeletedCat);
 
 	try {
 		await writeFile(catsDataFilePath, json, 'utf-8');
@@ -80,12 +100,19 @@ route.post('/add-cat', (req, res) => {
 		});
 
 		await createNewCat(files.upload.name, ...fields);
-
-		res.writeHead(302, {
-			Location: '/'
-		});
-		res.end();
+		res.redirect(302, '/');
 	});
+});
+
+route.get('/find-new-home/:id', async (req, res) => {
+	const cat = await getCurrentCat(req.params.id);
+	res.render('cat-shelter', { cat });
+});
+
+route.post('/find-new-home/:id', async (req, res) => {
+	const catId = req.params.id;
+	await deleteCat(catId);
+	res.redirect(302, '/');
 });
 
 module.exports = route;
