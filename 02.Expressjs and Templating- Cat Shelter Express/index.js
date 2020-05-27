@@ -5,10 +5,12 @@ const path = require('path');
 const homePageRoute = require('./routes/home');
 const catsRoute = require('./routes/cats');
 
+global.appPath = path.resolve(__dirname);
 const app = express();
 const PORT = 3232;
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded());
 app.engine(
 	'.hbs',
 	handlebars({

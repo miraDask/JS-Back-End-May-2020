@@ -31,13 +31,4 @@ route.get('/', getCats, (req, res) => {
 	res.render('home', { cats: req.cats });
 });
 
-// route.get('/search', getCats, (req, res) => {
-// 	const text = req.query.text.toLowerCase();
-// 	const cats = req.cats.filter(
-// 		(cat) => cat.name.toLowerCase().includes(text) || cat.description.toLowerCase().includes(text)
-// 	);
-
-// 	res.render(res.render('home', { cats }));
-// });
-
 module.exports = route;
