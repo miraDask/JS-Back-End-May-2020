@@ -41,48 +41,6 @@ const getCurrentCat = async (catId) => {
 	return cat;
 };
 
-const createNewCat = async (fileName, ...fields) => {
-	let catsAll = await getAllCats();
-
-	catsAll.push({
-		id: catsAll.length + 1,
-		image: fileName,
-		...fields
-	});
-
-	const json = JSON.stringify(catsAll);
-
-	try {
-		await writeFile(catsDataFilePath, json, 'utf-8');
-	} catch (err) {
-		console.error(err.message);
-		return;
-	}
-
-	return console.log('cats updated');
-};
-
-// const updateCat = async (catId, fileName, ...fields) => {
-// 	const catsAll = await getAllCats();
-// 	const catIndex = catsAll.findIndex((x) => x.id == catId);
-// 	const cat = catsAll[catIndex];
-// 	const editedCat = {
-// 		id: cat.id,
-// 		image: fileName ? fileName : cat.image,
-// 		...fields
-// 	};
-
-// 	catsAll[catIndex] = editedCat;
-// 	const json = JSON.stringify(catsAll);
-
-// 	try {
-// 		await writeFile(catsDataFilePath, json, 'utf-8');
-// 		return console.log(`cat with id: ${id} was updated.`);
-// 	} catch (err) {
-// 		return console.log(err.message);
-// 	}
-// };
-
 const deleteCat = async (catId) => {
 	const catsAll = await getAllCats();
 	const allWithoutDeletedCat = catsAll.filter((x) => x.id != catId);
@@ -106,29 +64,38 @@ route.post('/add-cat', (req, res) => {
 
 	form.parse(req, async (err, fields, files) => {
 		if (err) {
-			return console.log(err.message);
+			console.log(err);
+			return;
 		}
 
-		form.parse(req, async (err, fields, files) => {
+		const oldPath = files.upload.path;
+		const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
+
+		mv(oldPath, newPath, (err) => {
 			if (err) {
 				console.log(err);
 				return;
 			}
-
-			const oldPath = files.upload.path;
-			const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
-
-			mv(oldPath, newPath, (err) => {
-				if (err) {
-					console.log(err);
-					return;
-				}
-				console.log('File is uploaded successfully!');
-			});
-
-			await createNewCat(files.upload.name, ...fields);
-			res.redirect(302, '/');
+			console.log('File is uploaded successfully!');
 		});
+
+		let catsAll = await getAllCats();
+
+		catsAll.push({
+			id: catsAll.length + 1,
+			image: files.upload.name,
+			...fields
+		});
+
+		const json = JSON.stringify(catsAll);
+
+		try {
+			const result = await writeFile(catsDataFilePath, json, 'utf-8');
+			res.redirect(302, '/');
+		} catch (err) {
+			console.error(err.message);
+			return;
+		}
 	});
 });
 
@@ -189,6 +156,31 @@ route.post('/edit/:id', async (req, res) => {
 			return console.log(err.message);
 		}
 	});
+	// form.parse(req, async (err, fields, files) => {
+	// 	if (err) {
+	// 		console.log(err);
+	// 		return;
+	// 	}
+
+	// 	if (files.upload.name) {
+	// 		const oldPath = files.upload.path;
+	// 		const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
+	// 		mv(oldPath, newPath, (err) => {
+	// 			if (err) {
+	// 				console.log(err);
+	// 				return;
+	// 			}
+	// 			console.log('File is uploaded successfully!');
+	// 		});
+	// 	}
+
+	// 	try {
+	// 		const result = await updateCat(req.params.id, files.upload.name, ...fields);
+	// 		res.redirect(302, '/');
+	// 	} catch (error) {
+	// 		console.log(error.message);
+	// 	}
+	//});
 });
 
 module.exports = route;
