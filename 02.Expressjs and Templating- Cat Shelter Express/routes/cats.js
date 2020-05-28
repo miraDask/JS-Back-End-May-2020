@@ -156,31 +156,24 @@ route.post('/edit/:id', async (req, res) => {
 			return console.log(err.message);
 		}
 	});
-	// form.parse(req, async (err, fields, files) => {
-	// 	if (err) {
-	// 		console.log(err);
-	// 		return;
-	// 	}
+});
 
-	// 	if (files.upload.name) {
-	// 		const oldPath = files.upload.path;
-	// 		const newPath = path.normalize(path.join(appPath, '/public/images/' + files.upload.name));
-	// 		mv(oldPath, newPath, (err) => {
-	// 			if (err) {
-	// 				console.log(err);
-	// 				return;
-	// 			}
-	// 			console.log('File is uploaded successfully!');
-	// 		});
-	// 	}
+route.get('/add-breed', (req, res) => {
+	res.render('add-breed');
+});
 
-	// 	try {
-	// 		const result = await updateCat(req.params.id, files.upload.name, ...fields);
-	// 		res.redirect(302, '/');
-	// 	} catch (error) {
-	// 		console.log(error.message);
-	// 	}
-	//});
+route.post('/add-breed', getBreeds, async (req, res) => {
+	let breeds = req.breeds;
+	const breed = req.body.breed;
+	breeds.push(breed);
+	const json = JSON.stringify(breeds);
+
+	try {
+		const result = await writeFile(breedsDataFilePath, json, 'utf-8');
+		res.redirect(302, '/');
+	} catch (err) {
+		return console.log(err.message);
+	}
 });
 
 module.exports = route;
