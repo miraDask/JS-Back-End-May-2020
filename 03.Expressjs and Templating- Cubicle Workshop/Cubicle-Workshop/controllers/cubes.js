@@ -1,8 +1,30 @@
 const cubeModel = require('../models/cubeModel');
 
 const getIndex = async (req, res) => {
-	const cubes = await cubeModel.getAll();
-	res.render('index', { cubes });
+	const { search, from, to } = req.query;
+	const predFn = (cube) => {
+		let result = true;
+
+		if (search) {
+			result = cube.name.toLowerCase().includes(search);
+		}
+
+		if (result && from) {
+			result = cube.difficulty >= +from;
+		}
+
+		if (result && to) {
+			result = cube.difficulty <= +to;
+		}
+		return result;
+	};
+
+	const cubes = await cubeModel.find(predFn);
+	res.render('index', { cubes, search, from, to });
+};
+
+const getAbout = (req, res) => {
+	res.render('about');
 };
 
 const getDetails = async (req, res) => {
@@ -21,14 +43,10 @@ const postCreate = async (req, res) => {
 	res.redirect('/');
 };
 
-const getAbout = (req, res) => {
-	res.render('about');
-};
-
 module.exports = {
 	getIndex,
 	getCreate,
-	getAbout,
 	postCreate,
+	getAbout,
 	getDetails
 };

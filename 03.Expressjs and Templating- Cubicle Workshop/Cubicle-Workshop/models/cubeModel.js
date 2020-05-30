@@ -67,8 +67,17 @@ class CubeModel {
 		try {
 			const cubesAll = await this.getAll();
 			const cube = cubesAll.filter((x) => x.id === id)[0];
-			console.log(cube);
 			return cube;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	async find(predFn) {
+		try {
+			const cubesAll = await this.getAll();
+			const filteredCubes = cubesAll.filter(predFn);
+			return filteredCubes;
 		} catch (error) {
 			console.log(error);
 		}
