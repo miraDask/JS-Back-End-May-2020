@@ -1,24 +1,15 @@
-// TODO: Require Controllers...
-const cubes = require('../config/database.json');
+const cubesController = require('../controllers/cubes');
+
 module.exports = (app) => {
-	app.get('/', (req, res) => {
-		res.render('index', { cubes });
-	});
+	app.get('/', cubesController.getIndex);
 
-	app.get('/about', (req, res) => {
-		res.render('about');
-	});
+	app.get('/about', cubesController.getAbout);
 
-	app.get('/create', (req, res) => {
-		res.render('create');
-	});
+	app.get('/details/:id', cubesController.getDetails);
 
-	app.get('/details/:id', (req, res) => {
-		res.render(
-			'details',
-			({ name, description, imageUrl, difficulty } = cubes.filter((x) => x.id === '5c3a68d9f78d6638ec8fdad7')[0])
-		);
-	});
+	app.get('/create', cubesController.getCreate);
+
+	app.post('/create', cubesController.postCreate);
 
 	app.get('*', (req, res) => {
 		res.render('404');
