@@ -1,87 +1,38 @@
-const uniqId = require('uniqid');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
-const dataPath = path.normalize(path.join(__dirname, '../config/database.json'));
-
-class CubeModel {
-	constructor() {
-		this.data = require('../config/database.json');
-	}
-
-	_read() {
-		return new Promise((resolve, reject) => {
-			fs.readFile(dataPath, (err, data) => {
-				if (err) {
-					console.log(err);
-					reject(err);
-					return;
-				}
-
-				resolve(JSON.parse(data));
-			});
-		});
-	}
-
-	_write(newData) {
-		return new Promise((resolve, reject) => {
-			fs.writeFile(dataPath, JSON.stringify(newData), (err) => {
-				if (err) {
-					reject(err);
-					return;
-				}
-
-				this.data = newData;
-				resolve(console.log('Database is updated'));
-			});
-		});
-	}
-
-	async create(name, description, imageUrl, difficulty) {
-		const newCube = {
-			id: uniqId(),
-			name,
-			description,
-			imageUrl,
-			difficulty: +difficulty
-		};
-
-		try {
-			const cubesAll = await this.getAll();
-			cubesAll.push(newCube);
-			return this._write(cubesAll);
-		} catch (error) {
-			console.log(error);
+const CubeSchema = new mongoose.Schema({
+	name: {
+		type: String,
+		required: true
+	},
+	description: {
+		type: String,
+		required: true,
+		maxlength: 500
+	},
+	imageUrl: {
+		type: String,
+		required: true
+	},
+	difficulty: {
+		type: Number,
+		required: true,
+		min: 1,
+		max: 6
+	},
+	accessories: [
+		{
+			type: 'ObjectId',
+			ref: 'Accessory'
 		}
-	}
+	]
+});
 
-	async getAll() {
-		try {
-			return await this._read();
-		} catch (error) {
-			console.log(error);
-		}
-	}
+// CubeSchema.path('imageUrl').validate(function(value) {
+// 	if (!this.imageUrl.startsWith('http://') || !this.imageUrl.startsWith('https://')) {
+// 		return false;
+// 	}
+// 	return true;
+// });
 
-	async getById(id) {
-		try {
-			const cubesAll = await this.getAll();
-			const cube = cubesAll.filter((x) => x.id === id)[0];
-			return cube;
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	async find(predFn) {
-		try {
-			const cubesAll = await this.getAll();
-			const filteredCubes = cubesAll.filter(predFn);
-			return filteredCubes;
-		} catch (error) {
-			console.log(error);
-		}
-	}
-}
-
-module.exports = new CubeModel();
+module.exports = mongoose.model('Cube', CubeSchema);

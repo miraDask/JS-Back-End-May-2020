@@ -1,26 +1,14 @@
-const cubeModel = require('../models/cubeModel');
+const Cube = require('../models/cubeModel');
 
 const getIndex = async (req, res) => {
 	const { search, from, to } = req.query;
-	const predFn = (cube) => {
-		let result = true;
-
-		if (search) {
-			result = cube.name.toLowerCase().includes(search);
-		}
-
-		if (result && from) {
-			result = cube.difficulty >= +from;
-		}
-
-		if (result && to) {
-			result = cube.difficulty <= +to;
-		}
-		return result;
-	};
-
-	const cubes = await cubeModel.find(predFn);
-	res.render('index', { cubes, search, from, to });
+	try {
+		const cubes = await getAllCubes(search, from, to);
+		res.render('index', { cubes, search, from, to });
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 };
 
 const getAbout = (req, res) => {
@@ -28,8 +16,13 @@ const getAbout = (req, res) => {
 };
 
 const getDetails = async (req, res) => {
-	const cube = await cubeModel.getById(req.params.id);
-	res.render('details', { ...cube });
+	try {
+		const cube = await getCubeById(req.params.id);
+		res.render('details', { ...cube });
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 };
 
 const getCreate = (req, res) => {
@@ -39,8 +32,35 @@ const getCreate = (req, res) => {
 const postCreate = async (req, res) => {
 	console.log(req.body);
 	const { name, description, imageUrl, difficulty } = req.body;
-	await cubeModel.create(name, description, imageUrl, difficulty);
+	const newCube = new Cube({ name, description, imageUrl, difficulty });
+
+	try {
+		await newCube.save();
+	} catch (error) {
+		console.error(error);
+	}
+
 	res.redirect('/');
+};
+
+const getCubeById = async (id) => await Cube.findById(id).lean();
+
+const getAllCubes = async (search, from, to) => {
+	var query = Cube.find();
+
+	if (search) {
+		query = Cube.find({ name: { $regex: search, $options: 'i' } });
+	}
+
+	if (from) {
+		query = query.where('difficulty').gte(from);
+	}
+
+	if (to) {
+		query = query.where('difficulty').lte(to);
+	}
+
+	return await query.lean();
 };
 
 module.exports = {
