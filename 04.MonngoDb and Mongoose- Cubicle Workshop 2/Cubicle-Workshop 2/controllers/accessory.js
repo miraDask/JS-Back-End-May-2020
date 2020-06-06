@@ -23,12 +23,7 @@ const getAttach = async (req, res) => {
 	try {
 		const cubeId = req.params.id;
 		const cube = await Cube.findById(cubeId).lean();
-		const cubeAccessories = cube.accessories.map((x) => x.valueOf().toString());
-		const accessories = await Accessory.find().select('_id name').lean();
-		const notAttachedAccessories = accessories.filter((x) => {
-			const accessoryIdToString = x._id.valueOf().toString();
-			return !cubeAccessories.includes(accessoryIdToString);
-		});
+		notAttachedAccessories = await getUnAttachedToCurrentCubeAccessories(cubeId);
 		res.render('attachAccessory', { ...cube, notAttachedAccessories });
 	} catch (error) {
 		console.error(error);
@@ -41,10 +36,29 @@ const postAttach = async (req, res) => {
 	console.log(cubeId);
 	try {
 		await updateCube(cubeId, accessory);
+		await updateAccessory(cubeId, accessory);
 		res.redirect(`/details/${cubeId}`);
 	} catch (error) {
-		consol.error(error);
+		console.error(error);
 	}
+};
+
+const updateAccessory = async (cubeId, accessoryId) => {
+	await Accessory.findByIdAndUpdate(accessoryId, {
+		$addToSet: {
+			cubes: [ cubeId ]
+		}
+	});
+};
+
+const getUnAttachedToCurrentCubeAccessories = async (cubeId) => {
+	return await Accessory.find({
+		cubes: {
+			$not: { $regex: cubeId }
+		}
+	})
+		.select('_id name')
+		.lean();
 };
 
 module.exports = {

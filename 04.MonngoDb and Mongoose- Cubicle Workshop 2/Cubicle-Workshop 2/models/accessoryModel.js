@@ -17,14 +17,13 @@ const AccessorySchema = new mongoose.Schema({
 	},
 	cubes: [
 		{
-			type: Schema.Types.ObjectId,
-			ref: 'Cube'
+			type: String
 		}
 	]
 });
 
 AccessorySchema.path('imageUrl').validate(function(url) {
 	return url.startsWith('http://') || url.startsWith('https://');
-}, 'Url is not valid');
+});
 
 module.exports = mongoose.model('Accessory', AccessorySchema);
