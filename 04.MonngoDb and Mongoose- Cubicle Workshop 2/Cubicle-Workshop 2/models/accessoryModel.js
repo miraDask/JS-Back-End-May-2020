@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const AccessorySchema = new mongoose.Schema({
 	name: {
@@ -16,17 +17,14 @@ const AccessorySchema = new mongoose.Schema({
 	},
 	cubes: [
 		{
-			type: 'ObjectId',
+			type: Schema.Types.ObjectId,
 			ref: 'Cube'
 		}
 	]
 });
 
-AccessorySchema.path('imageUrl').validate(function(value) {
-	if (!this.startsWith('http//') || !this.startsWith('https//')) {
-		return false;
-	}
-	return true;
-});
+AccessorySchema.path('imageUrl').validate(function(url) {
+	return url.startsWith('http://') || url.startsWith('https://');
+}, 'Url is not valid');
 
 module.exports = mongoose.model('Accessory', AccessorySchema);
