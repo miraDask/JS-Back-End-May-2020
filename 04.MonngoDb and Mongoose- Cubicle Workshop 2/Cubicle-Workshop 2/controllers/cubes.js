@@ -18,6 +18,7 @@ const getAbout = (req, res) => {
 const getDetails = async (req, res) => {
 	try {
 		const cube = await getCubeById(req.params.id);
+		console.log({ ...cube });
 		res.render('details', { ...cube });
 	} catch (error) {
 		console.error(error);
@@ -30,7 +31,6 @@ const getCreate = (req, res) => {
 };
 
 const postCreate = async (req, res) => {
-	console.log(req.body);
 	const { name, description, imageUrl, difficulty } = req.body;
 	const newCube = new Cube({ name, description, imageUrl, difficulty });
 
@@ -43,7 +43,7 @@ const postCreate = async (req, res) => {
 	res.redirect('/');
 };
 
-const getCubeById = async (id) => await Cube.findById(id).lean();
+const getCubeById = async (id) => await Cube.findById(id).populate('accessories').lean();
 
 const getAllCubes = async (search, from, to) => {
 	var query = Cube.find();
@@ -63,10 +63,19 @@ const getAllCubes = async (search, from, to) => {
 	return await query.lean();
 };
 
+const updateCube = async (cubeId, accessoryId) => {
+	await Cube.findByIdAndUpdate(cubeId, {
+		$addToSet: {
+			accessories: [ accessoryId ]
+		}
+	});
+};
+
 module.exports = {
 	getIndex,
 	getCreate,
 	postCreate,
 	getAbout,
-	getDetails
+	getDetails,
+	updateCube
 };
