@@ -7,7 +7,6 @@ const getCreate = (req, res) => {
 };
 
 const postCreate = async (req, res) => {
-	console.log(req.body);
 	const { name, description, imageUrl } = req.body;
 	const newAccessory = new Accessory({ name, description, imageUrl });
 
@@ -33,7 +32,6 @@ const getAttach = async (req, res) => {
 const postAttach = async (req, res) => {
 	const { accessory } = req.body;
 	const cubeId = req.params.id;
-	console.log(cubeId);
 	try {
 		await updateCube(cubeId, accessory);
 		await updateAccessory(cubeId, accessory);
@@ -54,7 +52,7 @@ const updateAccessory = async (cubeId, accessoryId) => {
 const getUnAttachedToCurrentCubeAccessories = async (cubeId) => {
 	return await Accessory.find({
 		cubes: {
-			$not: { $regex: cubeId }
+			$nin: cubeId
 		}
 	})
 		.select('_id name')

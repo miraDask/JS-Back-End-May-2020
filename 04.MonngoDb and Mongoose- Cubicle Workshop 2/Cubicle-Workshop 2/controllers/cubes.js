@@ -18,7 +18,6 @@ const getAbout = (req, res) => {
 const getDetails = async (req, res) => {
 	try {
 		const cube = await getCubeById(req.params.id);
-		console.log({ ...cube });
 		res.render('details', { ...cube });
 	} catch (error) {
 		console.error(error);
