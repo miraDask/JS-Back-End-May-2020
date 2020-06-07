@@ -17,7 +17,8 @@ const AccessorySchema = new mongoose.Schema({
 	},
 	cubes: [
 		{
-			type: String
+			type: Schema.Types.ObjectId,
+			ref: 'Cube'
 		}
 	]
 });

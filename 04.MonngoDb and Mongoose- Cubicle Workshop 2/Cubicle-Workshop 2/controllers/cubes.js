@@ -45,7 +45,7 @@ const postCreate = async (req, res) => {
 const getCubeById = async (id) => await Cube.findById(id).populate('accessories').lean();
 
 const getAllCubes = async (search, from, to) => {
-	var query = Cube.find();
+	let query = Cube.find();
 
 	if (search) {
 		query = Cube.find({ name: { $regex: search, $options: 'i' } });
