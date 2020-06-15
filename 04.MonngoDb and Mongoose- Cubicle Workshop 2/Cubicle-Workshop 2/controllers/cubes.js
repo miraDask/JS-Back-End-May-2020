@@ -21,10 +21,10 @@ const getAbout = (req, res) => {
 };
 
 const getDetails = async (req, res) => {
-	const { isLoggedIn } = req;
+	const { isLoggedIn, isCreator } = req;
 	try {
 		const cube = await getCubeById(req.params.id);
-		res.render('details', { ...cube, isLoggedIn });
+		res.render('details', { ...cube, isLoggedIn, isCreator });
 	} catch (error) {
 		console.error(error);
 		throw error;
@@ -96,6 +96,11 @@ const postDelete = async (req, res) => {
 
 const getCubeById = async (id) => await Cube.findById(id).populate('accessories').lean();
 
+const getCubeCreator = async (id) => {
+	const { creatorId } = await Cube.findById(id).select('creatorId');
+	return creatorId;
+};
+
 const getAllCubes = async (search, from, to) => {
 	let query = Cube.find();
 
@@ -132,5 +137,6 @@ module.exports = {
 	getEdit,
 	postEdit,
 	getDelete,
-	postDelete
+	postDelete,
+	getCubeCreator
 };

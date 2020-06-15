@@ -1,7 +1,7 @@
 const cubesController = require('../controllers/cubes');
 const accessoriesController = require('../controllers/accessory');
 const usersController = require('../controllers/users');
-const { anonymousRestriction } = require('../controllers/auth');
+const { anonymousRestriction, isCubeCreatorCheck, notCreatorRestriction } = require('../controllers/auth');
 
 module.exports = (app) => {
 	// allow anonymous
@@ -25,27 +25,27 @@ module.exports = (app) => {
 	app.get('/logout', anonymousRestriction, usersController.getLogout);
 
 	// allow anonymous
-	app.get('/details/:id', cubesController.getDetails);
+	app.get('/details/:id', isCubeCreatorCheck, cubesController.getDetails);
 
 	app.get('/create', anonymousRestriction, cubesController.getCreate);
 
 	app.post('/create', anonymousRestriction, cubesController.postCreate);
 
-	app.get('/edit/:id', anonymousRestriction, cubesController.getEdit);
+	app.get('/edit/:id', anonymousRestriction, notCreatorRestriction, cubesController.getEdit);
 
-	app.post('/edit/:id', anonymousRestriction, cubesController.postEdit);
+	app.post('/edit/:id', anonymousRestriction, notCreatorRestriction, cubesController.postEdit);
 
-	app.get('/delete/:id', anonymousRestriction, cubesController.getDelete);
+	app.get('/delete/:id', anonymousRestriction, notCreatorRestriction, cubesController.getDelete);
 
-	app.post('/delete/:id', anonymousRestriction, cubesController.postDelete);
+	app.post('/delete/:id', anonymousRestriction, notCreatorRestriction, cubesController.postDelete);
 
 	app.get('/create/accessory', anonymousRestriction, accessoriesController.getCreate);
 
 	app.post('/create/accessory', anonymousRestriction, accessoriesController.postCreate);
 
-	app.get('/attach/accessory/:id', anonymousRestriction, accessoriesController.getAttach);
+	app.get('/attach/accessory/:id', anonymousRestriction, notCreatorRestriction, accessoriesController.getAttach);
 
-	app.post('/attach/accessory/:id', anonymousRestriction, accessoriesController.postAttach);
+	app.post('/attach/accessory/:id', anonymousRestriction, notCreatorRestriction, accessoriesController.postAttach);
 
 	app.get('*', (req, res) => {
 		res.render('404');
