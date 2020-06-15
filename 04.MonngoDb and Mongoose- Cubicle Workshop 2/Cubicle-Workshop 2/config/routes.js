@@ -9,7 +9,13 @@ module.exports = (app) => {
 
 	app.get('/login', identityController.getLogin);
 
+	app.post('/login', identityController.postLogin);
+
 	app.get('/register', identityController.getRegister);
+
+	app.post('/register', identityController.postRegister);
+
+	app.get('/logout', identityController.getLogout);
 
 	app.get('/details/:id', cubesController.getDetails);
 
