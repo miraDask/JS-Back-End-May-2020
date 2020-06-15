@@ -3,12 +3,14 @@ const Cube = require('../models/cubeModel');
 const { updateCube } = require('../controllers/cubes');
 
 const getCreate = (req, res) => {
-	res.render('createAccessory');
+	const { isLoggedIn } = req;
+	res.render('createAccessory', { isLoggedIn });
 };
 
 const postCreate = async (req, res) => {
+	const { isLoggedIn } = req;
 	const { name, description, imageUrl } = req.body;
-	const newAccessory = new Accessory({ name, description, imageUrl });
+	const newAccessory = new Accessory({ name, description, imageUrl, isLoggedIn });
 
 	try {
 		await newAccessory.save();
@@ -23,7 +25,8 @@ const getAttach = async (req, res) => {
 		const cubeId = req.params.id;
 		const cube = await Cube.findById(cubeId).lean();
 		notAttachedAccessories = await getUnAttachedToCurrentCubeAccessories(cubeId);
-		res.render('attachAccessory', { ...cube, notAttachedAccessories });
+		const { isLoggedIn } = req;
+		res.render('attachAccessory', { ...cube, notAttachedAccessories, isLoggedIn });
 	} catch (error) {
 		console.error(error);
 	}
@@ -35,6 +38,7 @@ const postAttach = async (req, res) => {
 	try {
 		await updateCube(cubeId, accessory);
 		await updateAccessory(cubeId, accessory);
+		const { isLoggedIn } = req;
 		res.redirect(`/details/${cubeId}`);
 	} catch (error) {
 		console.error(error);

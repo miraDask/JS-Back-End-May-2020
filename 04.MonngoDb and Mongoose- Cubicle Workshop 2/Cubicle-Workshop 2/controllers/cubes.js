@@ -1,10 +1,14 @@
 const Cube = require('../models/cubeModel');
+const { getUserId } = require('../controllers/auth');
+
+const { TOKEN_KEY } = require('../controllers/constants');
 
 const getIndex = async (req, res) => {
 	const { search, from, to } = req.query;
+	const { isLoggedIn } = req;
 	try {
 		const cubes = await getAllCubes(search, from, to);
-		res.render('index', { cubes, search, from, to });
+		res.render('index', { cubes, search, from, to, isLoggedIn });
 	} catch (error) {
 		console.error(error);
 		throw error;
@@ -12,13 +16,15 @@ const getIndex = async (req, res) => {
 };
 
 const getAbout = (req, res) => {
-	res.render('about');
+	const { isLoggedIn } = req;
+	res.render('about', { isLoggedIn });
 };
 
 const getDetails = async (req, res) => {
+	const { isLoggedIn } = req;
 	try {
 		const cube = await getCubeById(req.params.id);
-		res.render('details', { ...cube });
+		res.render('details', { ...cube, isLoggedIn });
 	} catch (error) {
 		console.error(error);
 		throw error;
@@ -26,20 +32,66 @@ const getDetails = async (req, res) => {
 };
 
 const getCreate = (req, res) => {
-	res.render('create');
+	const { isLoggedIn } = req;
+	res.render('create', { isLoggedIn });
 };
 
 const postCreate = async (req, res) => {
+	const token = req.cookies[TOKEN_KEY];
 	const { name, description, imageUrl, difficulty } = req.body;
-	const newCube = new Cube({ name, description, imageUrl, difficulty });
+	const creatorId = getUserId(token);
+	const newCube = new Cube({ name, description, imageUrl, difficulty, creatorId });
 
 	try {
-		await newCube.save();
+		const { _id } = await newCube.save();
+		res.redirect(`/details/${_id}`);
 	} catch (error) {
 		console.error(error);
 	}
+};
 
-	res.redirect('/');
+const getEdit = async (req, res) => {
+	try {
+		const cube = await getCubeById(req.params.id);
+		const { isLoggedIn } = req;
+		res.render('editCubePage', { ...cube, isLoggedIn });
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+const postEdit = async (req, res) => {
+	const { name, description, imageUrl, difficulty } = req.body;
+	const cubeId = req.params.id;
+	try {
+		const creatorId = getUserId(token);
+		await Cube.findByIdAndUpdate(cubeId, { name, description, imageUrl, difficulty });
+		res.redirect(`/details/${cubeId}`);
+	} catch (error) {
+		console.error(error);
+	}
+};
+
+const getDelete = async (req, res) => {
+	try {
+		const cube = await getCubeById(req.params.id);
+		const { isLoggedIn } = req;
+		res.render('deleteCubePage', { ...cube, isLoggedIn });
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+const postDelete = async (req, res) => {
+	const cubeId = req.params.id;
+	try {
+		await Cube.findByIdAndRemove(cubeId);
+		res.redirect('/');
+	} catch (error) {
+		console.error(error);
+	}
 };
 
 const getCubeById = async (id) => await Cube.findById(id).populate('accessories').lean();
@@ -76,5 +128,9 @@ module.exports = {
 	postCreate,
 	getAbout,
 	getDetails,
-	updateCube
+	updateCube,
+	getEdit,
+	postEdit,
+	getDelete,
+	postDelete
 };
