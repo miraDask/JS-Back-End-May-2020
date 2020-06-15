@@ -11,6 +11,20 @@ const getLogin = (req, res) => {
 	res.render('loginPage');
 };
 
+const postLogin = async (req, res) => {
+	const { username, password } = req.body;
+	const userId = await findUser(username, password);
+
+	if (!userId) {
+		res.redirect('/login');
+	}
+
+	const token = generateToken(username, userId);
+	res.cookie('aid', token);
+
+	res.redirect('/');
+};
+
 const getRegister = (req, res) => {
 	res.render('registerPage');
 };
@@ -27,6 +41,28 @@ const postRegister = async (req, res) => {
 	res.cookie('aid', token);
 
 	res.redirect('/');
+};
+
+const getLogout = (req, res) => {
+	res.clearCookie('aid');
+
+	res.redirect('/');
+};
+
+const findUser = async (username, password) => {
+	const user = await User.findOne({ username });
+
+	if (!user) {
+		return null;
+	}
+
+	const passwordIsCorrect = await bcrypt.compare(password, user.password);
+
+	if (!passwordIsCorrect) {
+		return null;
+	}
+
+	return user._id;
 };
 
 const createUser = async (username, password) => {
@@ -54,6 +90,8 @@ const generateToken = (username, userId) => {
 
 module.exports = {
 	getLogin,
+	postLogin,
 	getRegister,
-	postRegister
+	postRegister,
+	getLogout
 };
