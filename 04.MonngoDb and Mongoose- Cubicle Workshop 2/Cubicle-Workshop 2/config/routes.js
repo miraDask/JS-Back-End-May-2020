@@ -1,10 +1,15 @@
 const cubesController = require('../controllers/cubes');
 const accessoriesController = require('../controllers/accessory');
+const identityController = require('../controllers/identity');
 
 module.exports = (app) => {
 	app.get('/', cubesController.getIndex);
 
 	app.get('/about', cubesController.getAbout);
+
+	app.get('/login', identityController.getLogin);
+
+	app.get('/register', identityController.getRegister);
 
 	app.get('/details/:id', cubesController.getDetails);
 
