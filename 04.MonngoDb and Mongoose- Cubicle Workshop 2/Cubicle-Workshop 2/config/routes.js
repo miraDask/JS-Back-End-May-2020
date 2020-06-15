@@ -11,6 +11,8 @@ module.exports = (app) => {
 
 	app.get('/register', identityController.getRegister);
 
+	app.post('/register', identityController.postRegister);
+
 	app.get('/details/:id', cubesController.getDetails);
 
 	app.get('/create', cubesController.getCreate);

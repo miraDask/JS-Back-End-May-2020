@@ -4,7 +4,6 @@ const env = process.env.NODE_ENV;
 const config = require('./config/config')[env];
 
 const connectionString = config.databaseUrl;
-console.log(connectionString);
 const mongoose = require('mongoose');
 
 const app = require('express')();
