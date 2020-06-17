@@ -1,7 +1,7 @@
 const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
-const cubeController = require('../controllers/cubes');
+const cubeService = require('../services/cubes');
 const { TOKEN_KEY } = require('../controllers/constants');
 
 const generateToken = (username, userId) => {
@@ -54,7 +54,7 @@ const isCubeCreatorCheck = async (req, res, next) => {
 
 	try {
 		const cubeId = req.params.id;
-		const creatorId = await cubeController.getCubeCreator(cubeId);
+		const creatorId = await cubeService.getCubeCreator(cubeId);
 		const { userID } = jwt.decode(token, config.secret);
 
 		req.isCreator = creatorId === userID;
@@ -69,7 +69,7 @@ const notCreatorRestriction = async (req, res, next) => {
 	try {
 		const token = req.cookies[TOKEN_KEY];
 		const cubeId = req.params.id;
-		const creatorId = await cubeController.getCubeCreator(cubeId);
+		const creatorId = await cubeService.getCubeCreator(cubeId);
 		const { userID } = jwt.decode(token, config.secret);
 
 		if (creatorId === userID) {
