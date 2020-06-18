@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { cubes } = require('../controllers');
-const { anonymousRestriction, isCubeCreatorCheck, notCreatorRestriction } = require('../controllers/auth');
+const { anonymousRestriction, isCubeCreatorCheck, notCreatorRestriction } = require('../utils/auth');
 
 // allow anonymous
 router.get('/details/:id', isCubeCreatorCheck, cubes.get.details);

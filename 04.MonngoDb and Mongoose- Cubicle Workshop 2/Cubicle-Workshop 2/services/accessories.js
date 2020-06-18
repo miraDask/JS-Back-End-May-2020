@@ -1,11 +1,25 @@
 const Accessory = require('../models/accessoryModel');
-const Cube = require('../models/cubeModel');
-const { updateCube } = require('../services/cubes');
 
 module.exports = {
 	createAccessory: async (accessoryObject) => {
 		const newAccessory = new Accessory(accessoryObject);
-		await newAccessory.save();
+
+		try {
+			await newAccessory.save();
+			return {
+				success: true
+			};
+		} catch (error) {
+			const errorMessages = [];
+			Object.keys(error.errors).forEach((x) => {
+				errorMessages.push(error.errors[x].message);
+			});
+
+			return {
+				success: false,
+				errorMessages
+			};
+		}
 	},
 
 	updateAccessory: async (cubeId, accessoryId) => {

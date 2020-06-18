@@ -1,4 +1,4 @@
-const { generateToken } = require('./auth');
+const { generateToken } = require('../utils/auth');
 const { TOKEN_KEY, USERNAME } = require('./constants');
 
 const usersService = require('../services/users');

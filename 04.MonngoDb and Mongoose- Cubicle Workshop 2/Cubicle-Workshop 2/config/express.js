@@ -1,7 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const handlebars = require('express-handlebars');
-const { authenticationCheck } = require('../controllers/auth');
+const { authenticationCheck } = require('../utils/auth');
 
 module.exports = (app) => {
 	app.use(cookieParser());

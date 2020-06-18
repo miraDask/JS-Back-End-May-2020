@@ -22,12 +22,16 @@ module.exports = {
 
 	post: {
 		create: async (req, res, next) => {
-			try {
-				const { name, description, imageUrl } = req.body;
-				await accessoriesService.createAccessory({ name, description, imageUrl });
+			const { name, description, imageUrl } = req.body;
+
+			const creationResult = await accessoriesService.createAccessory({ name, description, imageUrl });
+
+			if (!creationResult.success) {
+				const { errorMessages } = creationResult;
+				const { isLoggedIn } = req;
+				res.render('createAccessory', { isLoggedIn, errorMessages, name, description, imageUrl });
+			} else {
 				res.redirect('/');
-			} catch (error) {
-				console.error(error);
 			}
 		},
 

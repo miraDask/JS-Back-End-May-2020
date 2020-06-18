@@ -9,8 +9,7 @@ module.exports = {
 				const cubes = await cubesService.getAllCubes(search, from, to);
 				res.render('index', { cubes, search, from, to, isLoggedIn });
 			} catch (error) {
-				console.error(error);
-				throw error;
+				//next();
 			}
 		},
 		about: (req, res, next) => {
