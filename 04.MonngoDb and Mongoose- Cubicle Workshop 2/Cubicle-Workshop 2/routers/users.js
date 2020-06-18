@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { users } = require('../controllers');
-const { anonymousRestriction } = require('../controllers/auth');
+const { anonymousRestriction } = require('../utils/auth');
 
 // allow anonymous
 router.get('/login', users.get.login);

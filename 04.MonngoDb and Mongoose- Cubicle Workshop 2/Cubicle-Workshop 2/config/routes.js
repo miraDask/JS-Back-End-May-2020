@@ -2,7 +2,7 @@ const routers = require('../routers');
 
 const accessoriesController = require('../controllers/accessories');
 const usersController = require('../controllers/users');
-const { anonymousRestriction, isCubeCreatorCheck, notCreatorRestriction } = require('../controllers/auth');
+const { anonymousRestriction, isCubeCreatorCheck, notCreatorRestriction } = require('../utils/auth');
 
 module.exports = (app) => {
 	// allow anonymous

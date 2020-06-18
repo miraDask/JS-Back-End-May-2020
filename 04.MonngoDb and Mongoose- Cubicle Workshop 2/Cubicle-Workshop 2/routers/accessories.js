@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { accessories } = require('../controllers');
-const { anonymousRestriction, notCreatorRestriction } = require('../controllers/auth');
+const { anonymousRestriction, notCreatorRestriction } = require('../utils/auth');
 
 router.get('/create/accessory', anonymousRestriction, accessories.get.create);
 

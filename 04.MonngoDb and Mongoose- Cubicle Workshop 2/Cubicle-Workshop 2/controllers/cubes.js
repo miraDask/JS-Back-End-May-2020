@@ -1,6 +1,6 @@
 const cubesService = require('../services/cubes');
 
-const { getUserId } = require('../controllers/auth');
+const { getUserId } = require('../utils/auth');
 
 const { TOKEN_KEY } = require('../controllers/constants');
 
@@ -17,8 +17,7 @@ module.exports = {
 				const { isLoggedIn } = req;
 				res.render('editCubePage', { ...cube, isLoggedIn });
 			} catch (error) {
-				console.error(error);
-				throw error;
+				next();
 			}
 		},
 
@@ -28,8 +27,7 @@ module.exports = {
 				const { isLoggedIn } = req;
 				res.render('deleteCubePage', { ...cube, isLoggedIn });
 			} catch (error) {
-				console.error(error);
-				throw error;
+				next();
 			}
 		},
 
@@ -39,8 +37,7 @@ module.exports = {
 				const cube = await cubesService.getCubeWithAccessoriesById(req.params.id);
 				res.render('details', { ...cube, isLoggedIn, isCreator });
 			} catch (error) {
-				console.error(error);
-				throw error;
+				next();
 			}
 		}
 	},
