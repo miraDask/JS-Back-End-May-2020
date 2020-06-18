@@ -1,4 +1,7 @@
 <h1>Create Accessory</h1>
+{{#if errorMessages}}
+{{> error-message}}
+{{/if}}
 <div class="form">
     <form action='/create/accessory' method="POST">
         <label for="name">Name</label>

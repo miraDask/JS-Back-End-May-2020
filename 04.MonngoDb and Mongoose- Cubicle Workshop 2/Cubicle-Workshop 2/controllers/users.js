@@ -1,5 +1,5 @@
 const { generateToken } = require('./auth');
-const { TOKEN_KEY } = require('./constants');
+const { TOKEN_KEY, USERNAME } = require('./constants');
 
 const usersService = require('../services/users');
 
@@ -16,7 +16,8 @@ module.exports = {
 		},
 
 		logout: (req, res, next) => {
-			res.clearCookie('aid');
+			res.clearCookie(TOKEN_KEY);
+			res.clearCookie(USERNAME);
 			res.redirect('/');
 		}
 	},
@@ -24,28 +25,36 @@ module.exports = {
 	post: {
 		login: async (req, res, next) => {
 			const { username, password } = req.body;
-			const userId = await usersService.findUser(username, password);
+			const loginResult = await usersService.findUser(username, password);
 
-			if (!userId) {
-				res.redirect('/login');
+			if (!loginResult.success) {
+				const { isLoggedIn } = req;
+				const { errorMessages } = loginResult;
+				res.render('loginPage', { isLoggedIn, errorMessages, username });
+			} else {
+				const { userId } = loginResult;
+				const token = generateToken(username, userId);
+				res.cookie(TOKEN_KEY, token);
+				res.cookie(USERNAME, username);
+				res.redirect('/');
 			}
-
-			const token = generateToken(username, userId);
-			res.cookie(TOKEN_KEY, token);
-			res.redirect('/');
 		},
 
 		register: async (req, res, next) => {
 			const { username, password, repeatPassword } = req.body;
+			const creationResult = await usersService.createUser(username, password, repeatPassword);
 
-			if (password !== repeatPassword) {
-				res.redirect('/register');
+			if (!creationResult.success) {
+				const { errorMessages } = creationResult;
+				const { isLoggedIn } = req;
+				res.render('registerPage', { isLoggedIn, errorMessages, username });
+			} else {
+				const { userId } = creationResult;
+				const token = generateToken(username, userId);
+				res.cookie(TOKEN_KEY, token);
+				res.cookie(USERNAME, username);
+				res.redirect('/');
 			}
-
-			const userId = await usersService.createUser(username, password);
-			const token = generateToken(username, userId);
-			res.cookie('aid', token);
-			res.redirect('/');
 		}
 	}
 };
