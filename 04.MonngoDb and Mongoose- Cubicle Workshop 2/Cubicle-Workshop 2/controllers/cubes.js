@@ -47,14 +47,25 @@ module.exports = {
 
 	post: {
 		create: async (req, res, next) => {
-			try {
-				const token = req.cookies[TOKEN_KEY];
-				const { name, description, imageUrl, difficulty } = req.body;
-				const creatorId = getUserId(token);
-				const _id = await cubesService.createCube({ name, description, imageUrl, difficulty, creatorId });
+			const token = req.cookies[TOKEN_KEY];
+			const { name, description, imageUrl, difficulty } = req.body;
+			const creatorId = getUserId(token);
+
+			const creationResult = await cubesService.createCube({
+				name,
+				description,
+				imageUrl,
+				difficulty,
+				creatorId
+			});
+
+			if (!creationResult.success) {
+				const { isLoggedIn } = req;
+				const { errorMessages } = creationResult;
+				res.render('create', { isLoggedIn, errorMessages, name, description, imageUrl, difficulty });
+			} else {
+				const { _id } = creationResult;
 				res.redirect(`/details/${_id}`);
-			} catch (error) {
-				console.error(error);
 			}
 		},
 

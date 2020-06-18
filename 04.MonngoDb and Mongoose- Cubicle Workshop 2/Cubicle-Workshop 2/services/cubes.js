@@ -3,8 +3,23 @@ const Cube = require('../models/cubeModel');
 module.exports = {
 	createCube: async (cubeObject) => {
 		const newCube = new Cube(cubeObject);
-		const { _id } = await newCube.save();
-		return _id;
+		try {
+			const { _id } = await newCube.save();
+			return {
+				success: true,
+				_id
+			};
+		} catch (error) {
+			const errorMessages = [];
+			Object.keys(error.errors).forEach((x) => {
+				errorMessages.push(error.errors[x].message);
+			});
+
+			return {
+				success: false,
+				errorMessages
+			};
+		}
 	},
 
 	editCube: async (cubeId, cubeObject) => await Cube.findByIdAndUpdate(cubeId, cubeObject),

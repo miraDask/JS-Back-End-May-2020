@@ -1,5 +1,4 @@
-const TOKEN_KEY = 'aid';
-
 module.exports = {
-	TOKEN_KEY
+	TOKEN_KEY: 'aid',
+	USERNAME: 'username'
 };
