@@ -2,10 +2,10 @@
 <h1 class="text-center">{{coursesListTitle}}</h1>
 <section>
     <a href="/course/create" class="btn btn-warning ">Create Course</a>
-    <form class="search float-right">
+    <form class="search float-right" method="" action="">
         <label>Search: </label>
-        <input type="text">
-        <input type="submit" class="btn btn-info" value="Search">
+        <input type="text" name="search" placeholder="Search..." value="{{search}}">
+        <input type="submit" class="btn btn-info" value="search">
     </form>
 </section>
 

@@ -46,21 +46,45 @@ const enrollUser = async (courseId, userId) =>
 		}
 	});
 
-const getTopCourses = async (number = null) => {
+const getTopCourses = async (number = null, search) => {
 	let query = Course.find().where('isPublic');
 	if (number) {
-		query = query.sort({ createdOn: -1 }).limit(number);
+		query = query.sort({ enrolledUsers: -1 }).limit(number);
 	} else {
-		query = query.sort({ enrolledUsers: -1 });
+		query = search ? Course.find({ title: { $regex: search, $options: 'i' } }) : query;
+		query = query.where('isPublic').sort({ createdOn: -1 });
 	}
 
 	return await query.lean();
 };
 
-const editCourse = async (courseId, courseObject) => await Course.findByIdAndUpdate(courseId, courseObject);
+const editCourse = async (courseId, courseObject) => {
+	try {
+		await Course.findByIdAndUpdate(courseId, courseObject);
+		return {
+			success: true
+		};
+	} catch (error) {
+		const errorMessages = [];
+		if (error.name === 'MongoError') {
+			errorMessages.push(COURSE_EXISTS_MESSAGE);
+		} else {
+			Object.keys(error.errors).forEach((x) => {
+				errorMessages.push(error.errors[x].message);
+			});
+		}
+
+		return {
+			success: false,
+			errorMessages
+		};
+	}
+};
 
 const getCourseWithEnrolledUsersById = async (courseId) =>
 	await Course.findById(courseId).populate('enrolledUsers').lean();
+
+const deleteCourse = async (courseId) => await Course.findByIdAndDelete(courseId);
 
 module.exports = {
 	getCourseWithEnrolledUsersById,
@@ -69,5 +93,6 @@ module.exports = {
 	enrollUser,
 	IsUserEnrolled,
 	getCreator,
-	createCourse
+	createCourse,
+	deleteCourse
 };

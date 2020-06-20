@@ -8,8 +8,8 @@ module.exports = {
 		home: async (req, res, next) => {
 			const { search } = req.query;
 			const { isLoggedIn, username } = req;
-			const coursesToDisplay = isLoggedIn ? 3 : null;
-			const courses = await coursesService.getTopCourses(coursesToDisplay);
+			const coursesToDisplay = isLoggedIn ? null : 3;
+			const courses = await coursesService.getTopCourses(coursesToDisplay, search);
 			const coursesListTitle = isLoggedIn ? userCoursesListTitle : guestCoursesListTitle;
 			try {
 				res.render('home', { search, isLoggedIn, title, coursesListTitle, username, courses });

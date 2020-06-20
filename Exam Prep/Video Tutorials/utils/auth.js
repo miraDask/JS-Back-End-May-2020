@@ -89,8 +89,8 @@ const isEnrolledCheck = async (req, res, next) => {
 const notCreatorRestriction = async (req, res, next) => {
 	try {
 		const token = req.cookies[TOKEN_KEY];
-		const cubeId = req.params.id;
-		const creatorId = await cubeService.getCubeCreator(cubeId);
+		const courseId = req.params.id;
+		const creatorId = await await courseService.getCreator(courseId);
 		const { userID } = jwt.decode(token, config.secret);
 
 		if (creatorId === userID) {
