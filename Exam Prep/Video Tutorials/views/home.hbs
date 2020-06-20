@@ -1,0 +1,46 @@
+{{#if isLoggedIn}}
+<h1 class="text-center">{{coursesListTitle}}</h1>
+<section>
+    <a href="/course/create" class="btn btn-warning ">Create Course</a>
+    <form class="search float-right">
+        <label>Search: </label>
+        <input type="text">
+        <input type="submit" class="btn btn-info" value="Search">
+    </form>
+</section>
+
+<div class="container mt-3">
+    {{#if courses}}
+    <div class="row ">
+        <div class="card-deck d-flex justify-content-center">
+            {{#each courses}}
+            {{> course}}
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+</div>
+<h3 class="text-center">No courses...</h3>
+
+{{else}}
+
+{{> jumbotron}}
+
+<div>
+    <h1 class="text-center">{{coursesListTitle}}</h1>
+    <div class="container mt-3">
+        {{#if courses}}
+        <div class="row d-flex justify-content-center">
+            <div class="card-deck">
+                {{#each courses}}
+                {{> course}}
+                {{/each}}
+            </div>
+
+        </div>
+        {{else}}
+        <h4 class="text-center">No courses...</h4>
+        {{/if}}
+    </div>
+</div>
+{{/if}}
