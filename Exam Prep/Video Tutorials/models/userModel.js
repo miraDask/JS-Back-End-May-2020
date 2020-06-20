@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const {
 	LETTERS_AND_DIGITS_PATTERN,
 	INCORRECT_USERNAME_MESSAGE,
@@ -19,6 +21,10 @@ const UserSchema = new mongoose.Schema({
 	password: {
 		type: String,
 		required: [ true, REQUIRED_PASSWORD ]
+	},
+	enrolledCourses: {
+		type: Schema.Types.ObjectId,
+		ref: 'Course'
 	}
 });
 

@@ -1,7 +1,7 @@
 const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
-const cubeService = require('../services/example');
+const courseService = require('../services/courses');
 const { TOKEN_KEY, USERNAME } = require('../controllers/constants');
 
 const generateToken = (username, userId) => {
@@ -55,13 +55,32 @@ const isCreatorCheck = async (req, res, next) => {
 	}
 
 	try {
-		const cubeId = req.params.id;
-		const creatorId = await cubeService.getCubeCreator(cubeId);
+		const courseId = req.params.id;
+		const creatorId = await courseService.getCreator(courseId);
 		const { userID } = jwt.decode(token, config.secret);
 
 		req.isCreator = creatorId === userID;
 	} catch (error) {
 		req.isCreator = false;
+	}
+
+	next();
+};
+
+const isEnrolledCheck = async (req, res, next) => {
+	const token = req.cookies[TOKEN_KEY];
+
+	if (!token) {
+		req.isEnrolled = false;
+	}
+
+	try {
+		const courseId = req.params.id;
+		const { userID } = jwt.decode(token, config.secret);
+
+		req.isEnrolled = await courseService.IsUserEnrolled(courseId, userID);
+	} catch (error) {
+		req.isEnrolled = false;
 	}
 
 	next();
@@ -90,5 +109,6 @@ module.exports = {
 	anonymousRestriction,
 	getUserId,
 	isCreatorCheck,
-	notCreatorRestriction
+	notCreatorRestriction,
+	isEnrolledCheck
 };
