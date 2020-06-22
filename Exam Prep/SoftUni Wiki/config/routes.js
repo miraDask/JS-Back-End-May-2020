@@ -7,6 +7,8 @@ module.exports = (app) => {
 
 	app.use('/', routers.home);
 
+	app.use('/articles', routers.articles);
+
 	app.get('*', (req, res) => {
 		const { isLoggedIn } = req;
 		const username = req.cookies[USERNAME];

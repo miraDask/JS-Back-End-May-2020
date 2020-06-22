@@ -5,11 +5,13 @@
 
     <nav>
         <a href="/">Main Page</a>
-        <a href="/article">All Articles</a>
-        <form>
-            <input type="text">
+        <a href="/articles">All Articles</a>
+        <form action="/articles">
+            <input type="text" name="search">
             <input type="submit" value="Search">
         </form>
-        <a href="/article">Create New Article</a>
+        {{#if isLoggedIn}}
+        <a href="/articles/create">Create New Article</a>
+        {{/if}}
     </nav>
 </aside>

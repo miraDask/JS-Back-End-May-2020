@@ -1,7 +1,8 @@
 const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
-const cubeService = require('../services/example');
+const articleService = require('../services/articlesService');
+
 const { TOKEN_KEY } = require('../controllers/constants');
 
 const generateToken = (username, userId) => {
@@ -45,48 +46,22 @@ const getUserId = (token) => {
 	return userID;
 };
 
-const isCreatorCheck = async (req, res, next) => {
+const creatorCheck = (req, res, next) => {
 	const token = req.cookies[TOKEN_KEY];
+	const articleId = req.params.id;
+	const userId = getUserId(token);
+	const { creatorId } = articleService.getArticleById(articleId);
 
-	if (!token) {
-		req.isCreator = false;
-	}
-
-	try {
-		const cubeId = req.params.id;
-		const creatorId = await cubeService.getCubeCreator(cubeId);
-		const { userID } = jwt.decode(token, config.secret);
-
-		req.isCreator = creatorId === userID;
-	} catch (error) {
-		req.isCreator = false;
-	}
-
-	next();
-};
-
-const notCreatorRestriction = async (req, res, next) => {
-	try {
-		const token = req.cookies[TOKEN_KEY];
-		const cubeId = req.params.id;
-		const creatorId = await cubeService.getCubeCreator(cubeId);
-		const { userID } = jwt.decode(token, config.secret);
-
-		if (creatorId === userID) {
-			next();
-		} else {
-			return res.redirect('/');
-		}
-	} catch (error) {
-		return res.redirect('/');
+	if (creatorId === userId) {
+		next();
+	} else {
+		res.send('Not permitted');
 	}
 };
-
 module.exports = {
 	generateToken,
 	authenticationCheck,
 	anonymousRestriction,
 	getUserId,
-	isCreatorCheck,
-	notCreatorRestriction
+	creatorCheck
 };

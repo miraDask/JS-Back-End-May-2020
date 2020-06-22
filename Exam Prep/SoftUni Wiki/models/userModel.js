@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const {
 	LETTERS_AND_DIGITS_PATTERN,
 	INCORRECT_USERNAME_MESSAGE,
@@ -8,18 +10,24 @@ const {
 	REQUIRED_USERNAME
 } = require('../services/constants');
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
 	username: {
 		type: String,
 		required: [ true, REQUIRED_USERNAME ],
-		unique: true,
-		minlength: [ NAME_MIN_LENGTH, INCORRECT_USERNAME_LENGTH_MESSAGE ],
-		match: [ LETTERS_AND_DIGITS_PATTERN, INCORRECT_USERNAME_MESSAGE ]
+		unique: true
+		// minlength: [ NAME_MIN_LENGTH, INCORRECT_USERNAME_LENGTH_MESSAGE ],
+		// match: [ LETTERS_AND_DIGITS_PATTERN, INCORRECT_USERNAME_MESSAGE ]
 	},
 	password: {
 		type: String,
 		required: [ true, REQUIRED_PASSWORD ]
-	}
+	},
+	articles: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: 'Article'
+		}
+	]
 });
 
 module.exports = mongoose.model('User', UserSchema);
