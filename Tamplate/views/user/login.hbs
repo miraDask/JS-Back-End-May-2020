@@ -1,15 +1,13 @@
-<h1>Register Form</h1>
+<h1>Login Form</h1>
 {{#if errorMessages}}
 {{> error-message}}
 {{/if}}
 <div class="form">
-  <form action='/register' method="POST">
+  <form action='/user/login' method="POST">
     <label for="username">Username</label>
     <input type="text" id="username" name="username" value="{{username}}">
     <label for="password">Password</label>
     <input type="password" id="password" name="password">
-    <label for="repeatPassword">Re-Password</label>
-    <input type="password" id="repeatPassword" name="repeatPassword">
-    <input type="submit" value="Register">
+    <input type="submit" value="Login">
   </form>
 </div>

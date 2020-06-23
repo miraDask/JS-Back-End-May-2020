@@ -7,12 +7,12 @@ module.exports = {
 	get: {
 		login: (req, res, next) => {
 			const { isLoggedIn } = req;
-			res.render('loginPage', { isLoggedIn });
+			res.render('user/login', { isLoggedIn });
 		},
 
 		register: (req, res, next) => {
 			const { isLoggedIn } = req;
-			res.render('registerPage', { isLoggedIn });
+			res.render('user/register', { isLoggedIn });
 		},
 
 		logout: (req, res, next) => {
@@ -30,7 +30,7 @@ module.exports = {
 			if (!loginResult.success) {
 				const { isLoggedIn } = req;
 				const { errorMessages } = loginResult;
-				res.render('loginPage', { isLoggedIn, errorMessages, username });
+				res.render('user/login', { isLoggedIn, errorMessages, username });
 			} else {
 				const { userId } = loginResult;
 				const token = generateToken(username, userId);
@@ -41,13 +41,13 @@ module.exports = {
 		},
 
 		register: async (req, res, next) => {
-			const { username, password, repeatPassword } = req.body;
-			const creationResult = await usersService.createUser(username, password, repeatPassword);
+			const { username, email, password, repeatPassword } = req.body;
+			const creationResult = await usersService.createUser(username, email, password, repeatPassword);
 
 			if (!creationResult.success) {
 				const { errorMessages } = creationResult;
 				const { isLoggedIn } = req;
-				res.render('registerPage', { isLoggedIn, errorMessages, username });
+				res.render('user/register', { isLoggedIn, errorMessages, username });
 			} else {
 				const { userId } = creationResult;
 				const token = generateToken(username, userId);

@@ -2,7 +2,7 @@ const routers = require('../routers');
 
 module.exports = (app) => {
 	// allow anonymous
-	app.use('/', routers.users);
+	app.use('/user', routers.users);
 
 	app.use('/', routers.home);
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const { String, Number, ObjectId } = Schema.Types;
 
 const {
 	NAME_MIN_LENGTH,
@@ -14,7 +15,7 @@ const {
 	REQUIRED_DESCRIPTION
 } = require('../services/constants');
 
-const CubeSchema = new mongoose.Schema({
+const exampleSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		required: [ true, REQUIRED_NAME ],
@@ -43,14 +44,14 @@ const CubeSchema = new mongoose.Schema({
 	},
 	accessories: [
 		{
-			type: Schema.Types.ObjectId,
+			type: ObjectId,
 			ref: 'Accessory'
 		}
 	]
 });
 
-CubeSchema.path('imageUrl').validate(function(url) {
+exampleSchema.path('imageUrl').validate(function(url) {
 	return url.startsWith('http://') || url.startsWith('https://');
 }, 'Url is not valid');
 
-module.exports = mongoose.model('Cube', CubeSchema);
+module.exports = mongoose.model('Example', exampleSchema);

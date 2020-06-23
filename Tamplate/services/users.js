@@ -40,7 +40,7 @@ module.exports = {
 		};
 	},
 
-	createUser: async (username, password, repeatPassword) => {
+	createUser: async (username, email, password, repeatPassword) => {
 		const errorMessages = [];
 		if (password.length < PASSWORD_MIN_LENGTH) {
 			errorMessages.push(INCORRECT_PASSWORD_LENGTH_MESSAGE);
@@ -56,7 +56,7 @@ module.exports = {
 
 		const hashedPassword = errorMessages.length > 0 ? null : await hashPassword(password);
 
-		const user = new User({ username, password: hashedPassword });
+		const user = new User({ username, email, password: hashedPassword });
 		try {
 			const { _id } = await user.save();
 

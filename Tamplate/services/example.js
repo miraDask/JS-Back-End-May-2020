@@ -1,10 +1,10 @@
-const Cube = require('../models/exampleModel');
+const Example = require('../models/exampleModel');
 
 module.exports = {
-	createCube: async (cubeObject) => {
-		const newCube = new Cube(cubeObject);
+	create: async (exampleObject) => {
+		const newExample = new Example(exampleObject);
 		try {
-			const { _id } = await newCube.save();
+			const { _id } = await newExample.save();
 			return {
 				success: true,
 				_id
@@ -22,42 +22,34 @@ module.exports = {
 		}
 	},
 
-	editCube: async (cubeId, cubeObject) => await Cube.findByIdAndUpdate(cubeId, cubeObject),
+	edit: async (id, exampleObject) => await Example.findByIdAndUpdate(id, exampleObject),
 
-	deleteCube: async (cubeId) => await Cube.findByIdAndRemove(cubeId),
+	delete: async (id) => await Example.findByIdAndRemove(id),
 
-	getCubeById: async (id) => await Cube.findById(id).lean(),
+	getById: async (id) => await Example.findById(id).lean(),
 
-	getCubeWithAccessoriesById: async (id) => await Cube.findById(id).populate('accessories').lean(),
+	//getCubeWithAccessoriesById: async (id) => await Cube.findById(id).populate('accessories').lean(),
 
-	getCubeCreator: async (id) => {
-		const { creatorId } = await Cube.findById(id).select('creatorId');
+	getCreator: async (id) => {
+		const { creatorId } = await Example.findById(id).select('creatorId');
 		return creatorId;
 	},
 
-	getAllCubes: async (search, from, to) => {
+	getAll: async (search) => {
 		let query = Cube.find();
 
 		if (search) {
 			query = Cube.find({ name: { $regex: search, $options: 'i' } });
 		}
 
-		if (from) {
-			query = query.where('difficulty').gte(from);
-		}
-
-		if (to) {
-			query = query.where('difficulty').lte(to);
-		}
-
 		return await query.lean();
-	},
-
-	attachAccessory: async (cubeId, accessoryId) => {
-		await Cube.findByIdAndUpdate(cubeId, {
-			$addToSet: {
-				accessories: [ accessoryId ]
-			}
-		});
 	}
+
+	// attachAccessory: async (cubeId, accessoryId) => {
+	// 	await Cube.findByIdAndUpdate(cubeId, {
+	// 		$addToSet: {
+	// 			accessories: [ accessoryId ]
+	// 		}
+	// 	});
+	//}
 };
