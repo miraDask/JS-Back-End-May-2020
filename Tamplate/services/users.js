@@ -14,6 +14,7 @@ const INCORRECT_PASSWORD_FORMAT_MESSAGE = 'Password should contains only english
 const USERNAME_EXISTS_MESSAGE = 'User with that username already exists.';
 
 module.exports = {
+	getById: async (id) => await User.findById(id).lean(),
 	findUser: async (username, email, password) => {
 		const user = await User.findOne({ username, email });
 		const errorMessages = [ INVALID_LOGIN_MESSAGE ];

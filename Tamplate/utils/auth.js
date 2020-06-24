@@ -2,6 +2,7 @@ const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
 const service = require('../services/example');
+const userService = require('../services/users');
 const { TOKEN_KEY } = require('../controllers/constants');
 
 const generateToken = (username, userId) => {
@@ -14,7 +15,7 @@ const generateToken = (username, userId) => {
 	return token;
 };
 
-const authenticationCheck = (req, res, next) => {
+const authenticationCheck = async (req, res, next) => {
 	const token = req.cookies[TOKEN_KEY];
 
 	if (!token) {
@@ -23,6 +24,9 @@ const authenticationCheck = (req, res, next) => {
 
 	try {
 		jwt.verify(token, config.secret);
+		const id = getUserId(token);
+		const { email, _id, username } = await userService.getById(id);
+		req.user = { email, _id: _id.toString(), username };
 		req.isLoggedIn = true;
 	} catch (error) {
 		req.isLoggedIn = false;

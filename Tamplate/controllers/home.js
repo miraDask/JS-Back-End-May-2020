@@ -4,7 +4,8 @@ module.exports = {
 			const { search } = req.query;
 			const { isLoggedIn } = req;
 			try {
-				res.render('home', { search, isLoggedIn });
+				const username = req.user ? req.user.username : '';
+				res.render('home', { search, isLoggedIn, username });
 			} catch (error) {
 				next();
 			}

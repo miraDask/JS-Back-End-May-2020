@@ -1,5 +1,5 @@
 const { generateToken } = require('../utils/auth');
-const { TOKEN_KEY, USERNAME, EMAIL } = require('./constants');
+const { TOKEN_KEY } = require('./constants');
 
 const usersService = require('../services/users');
 
@@ -17,8 +17,6 @@ module.exports = {
 
 		logout: (req, res, next) => {
 			res.clearCookie(TOKEN_KEY);
-			res.clearCookie(USERNAME);
-			res.clearCookie(EMAIL);
 			res.redirect('/');
 		}
 	},
@@ -36,8 +34,6 @@ module.exports = {
 				const { userId } = loginResult;
 				const token = generateToken(username, userId);
 				res.cookie(TOKEN_KEY, token);
-				res.cookie(USERNAME, username);
-				res.cookie(EMAIL, email);
 				res.redirect('/');
 			}
 		},
@@ -54,8 +50,6 @@ module.exports = {
 				const { userId } = creationResult;
 				const token = generateToken(username, userId);
 				res.cookie(TOKEN_KEY, token);
-				res.cookie(USERNAME, username);
-				res.cookie(EMAIL, email);
 				res.redirect('/');
 			}
 		}
