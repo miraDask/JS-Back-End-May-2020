@@ -1,5 +1,5 @@
 const { generateToken } = require('../utils/auth');
-const { TOKEN_KEY, USERNAME } = require('./constants');
+const { TOKEN_KEY, USERNAME, EMAIL } = require('./constants');
 
 const usersService = require('../services/users');
 
@@ -18,14 +18,15 @@ module.exports = {
 		logout: (req, res, next) => {
 			res.clearCookie(TOKEN_KEY);
 			res.clearCookie(USERNAME);
+			res.clearCookie(EMAIL);
 			res.redirect('/');
 		}
 	},
 
 	post: {
 		login: async (req, res, next) => {
-			const { username, password } = req.body;
-			const loginResult = await usersService.findUser(username, password);
+			const { username, email, password } = req.body;
+			const loginResult = await usersService.findUser(username, email, password);
 
 			if (!loginResult.success) {
 				const { isLoggedIn } = req;
@@ -36,6 +37,7 @@ module.exports = {
 				const token = generateToken(username, userId);
 				res.cookie(TOKEN_KEY, token);
 				res.cookie(USERNAME, username);
+				res.cookie(EMAIL, email);
 				res.redirect('/');
 			}
 		},
@@ -53,6 +55,7 @@ module.exports = {
 				const token = generateToken(username, userId);
 				res.cookie(TOKEN_KEY, token);
 				res.cookie(USERNAME, username);
+				res.cookie(EMAIL, email);
 				res.redirect('/');
 			}
 		}

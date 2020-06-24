@@ -2,9 +2,9 @@ const Example = require('../models/exampleModel');
 
 module.exports = {
 	create: async (exampleObject) => {
-		const newExample = new Example(exampleObject);
+		const newModel = new Example(exampleObject);
 		try {
-			const { _id } = await newExample.save();
+			const { _id } = await newModel.save();
 			return {
 				success: true,
 				_id
@@ -36,10 +36,10 @@ module.exports = {
 	},
 
 	getAll: async (search) => {
-		let query = Cube.find();
+		let query = Example.find();
 
 		if (search) {
-			query = Cube.find({ name: { $regex: search, $options: 'i' } });
+			query = Example.find({ name: { $regex: search, $options: 'i' } });
 		}
 
 		return await query.lean();

@@ -1,4 +1,5 @@
 module.exports = {
 	TOKEN_KEY: 'aid',
-	USERNAME: 'username'
+	USERNAME: 'username',
+	EMAIL: 'email'
 };

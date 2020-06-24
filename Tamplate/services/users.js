@@ -2,20 +2,20 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/userModel');
 
-const {
-	SALT_ROUNDS,
-	UNMATCHING_PASSWORDS_MESSAGE,
-	INCORRECT_PASSWORD_MESSAGE,
-	INCORRECT_PASSWORD_LENGTH_MESSAGE,
-	LETTERS_AND_DIGITS_PATTERN,
-	USERNAME_EXISTS_MESSAGE,
-	PASSWORD_MIN_LENGTH,
-	INVALID_LOGIN_MESSAGE
-} = require('./constants');
+const SALT_ROUNDS = 10;
+const INVALID_LOGIN_MESSAGE = 'Invalid username or password.';
+
+const PASSWORD_MIN_LENGTH = 8;
+const INCORRECT_PASSWORD_LENGTH_MESSAGE = `Password should be at least ${PASSWORD_MIN_LENGTH} characters long.`;
+const UNMATCHING_PASSWORDS_MESSAGE = 'Passwords should match.';
+const LETTERS_AND_DIGITS_PATTERN = /^[A-Za-z0-9]+$/;
+const INCORRECT_PASSWORD_FORMAT_MESSAGE = 'Password should contains only english letters and digits.';
+
+const USERNAME_EXISTS_MESSAGE = 'User with that username already exists.';
 
 module.exports = {
-	findUser: async (username, password) => {
-		const user = await User.findOne({ username });
+	findUser: async (username, email, password) => {
+		const user = await User.findOne({ username, email });
 		const errorMessages = [ INVALID_LOGIN_MESSAGE ];
 
 		if (!user) {
@@ -51,7 +51,7 @@ module.exports = {
 		}
 
 		if (!password.match(LETTERS_AND_DIGITS_PATTERN)) {
-			errorMessages.push(INCORRECT_PASSWORD_MESSAGE);
+			errorMessages.push(INCORRECT_PASSWORD_FORMAT_MESSAGE);
 		}
 
 		const hashedPassword = errorMessages.length > 0 ? null : await hashPassword(password);

@@ -2,31 +2,36 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const { String, Number, ObjectId } = Schema.Types;
 
-const {
-	NAME_MIN_LENGTH,
-	DESCRIPTION_MIN_LENGTH,
-	LETTERS_DIGITS_AND_WHITESPACE_PATTERN,
-	INCORRECT_DESCRIPTION_MESSAGE,
-	INCORRECT_DESCRIPTION_LENGTH_MESSAGE,
-	INCORRECT_NAME_MESSAGE,
-	INCORRECT_NAME_LENGTH_MESSAGE,
-	REQUIRED_IMAGE,
-	REQUIRED_NAME,
-	REQUIRED_DESCRIPTION
-} = require('../services/constants');
+// Name
+const NAME_MIN_LENGTH = 5;
+const INCORRECT_NAME_LENGTH_MESSAGE = `Name should be at least ${NAME_MIN_LENGTH} characters long`;
+const INCORRECT_NAME_FORMAT_MESSAGE = 'Name should contains only english letters, digits or white spaces.';
+const REQUIRED_NAME = 'Name is required.';
+
+//DESCRIPTION
+const DESCRIPTION_MIN_LENGTH = 20;
+const INCORRECT_DESCRIPTION_LENGTH_MESSAGE = `Description should be at least ${DESCRIPTION_MIN_LENGTH} characters long`;
+const INCORRECT_DESCRIPTION_FORMAT_MESSAGE =
+	'Description should contains only english letters, digits or white spaces.';
+const REQUIRED_DESCRIPTION = 'Description is required.';
+
+//IMAGE
+const REQUIRED_IMAGE = 'Image link is required.';
+
+const LETTERS_DIGITS_AND_WHITESPACE_PATTERN = /^[A-Za-z0-9\s]+$/;
 
 const exampleSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		required: [ true, REQUIRED_NAME ],
 		minlength: [ NAME_MIN_LENGTH, INCORRECT_NAME_LENGTH_MESSAGE ],
-		match: [ LETTERS_DIGITS_AND_WHITESPACE_PATTERN, INCORRECT_NAME_MESSAGE ]
+		match: [ LETTERS_DIGITS_AND_WHITESPACE_PATTERN, INCORRECT_NAME_FORMAT_MESSAGE ]
 	},
 	description: {
 		type: String,
 		required: [ true, REQUIRED_DESCRIPTION ],
 		minlength: [ DESCRIPTION_MIN_LENGTH, INCORRECT_DESCRIPTION_LENGTH_MESSAGE ],
-		match: [ LETTERS_DIGITS_AND_WHITESPACE_PATTERN, INCORRECT_DESCRIPTION_MESSAGE ]
+		match: [ LETTERS_DIGITS_AND_WHITESPACE_PATTERN, INCORRECT_DESCRIPTION_FORMAT_MESSAGE ]
 	},
 	imageUrl: {
 		type: String,
@@ -42,10 +47,10 @@ const exampleSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	accessories: [
+	users: [
 		{
 			type: ObjectId,
-			ref: 'Accessory'
+			ref: 'User'
 		}
 	]
 });
