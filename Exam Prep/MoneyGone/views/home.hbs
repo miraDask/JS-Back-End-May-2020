@@ -1,0 +1,42 @@
+{{#unless isLoggedIn}}
+<p class="guest-message">MoneyGone? The best expense tracker tool of all time!
+    <br>Аre you new here?
+    <a href="/user/register">Register</a> yourself!
+</p>
+{{else}}
+<section class="actions">
+    <form action="/user/refill" method="POST">
+        <h2>Salary time? Refill your account amount.</h2>
+        <input type="text" name="amount" value="{{message}}" id="refill-amount">
+        <button type="submit">Refill</button>
+    </form>
+    <div>
+        <h2>New expense comming up?</h2>
+        <a href="/expenses/create">Add it now</a>
+    </div>
+</section>
+
+<hr class="separator">
+{{#unless expenses}}
+<h1 class="no-expenses">No expenses founded so far.. <span>GOOD JOB!</span></h1>
+{{else}}
+
+<table class="expenses">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Merchant</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Description</th>
+        </tr>
+
+    </thead>
+    <tbody>
+        {{#each expenses}}
+        {{> expense}}
+        {{/each}}
+    </tbody>
+</table>
+{{/unless}}
+{{/unless}}

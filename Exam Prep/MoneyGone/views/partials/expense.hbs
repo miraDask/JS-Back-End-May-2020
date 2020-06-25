@@ -1,0 +1,26 @@
+<tr>
+    <td>
+        <img src="/static/images/date.png" />
+        <p>{{this.createdOn}}</p>
+    </td>
+    <td>
+        <p>{{this.merchant}}</p>
+        {{#if this.report}}
+        <div class="report">
+            <a href="/expenses/report/{{this._id}}">Report</a>
+        </div>
+        {{/if}}
+    </td>
+    <td>
+        <img src="/static/images/amount.png" alt="">
+        <p>лв {{this.total}}</p>
+    </td>
+    <td>
+        <img src="/static/images/category.png" alt="">
+        <p>{{this.category}}</p>
+    </td>
+    <td>
+        <img src="/static/images/hastag.png" alt="">
+        <p>{{this.description}}</p>
+    </td>
+</tr>
