@@ -2,12 +2,12 @@ const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const Example = require('../models/exampleModel');
+const Tripp = require('../models/trippModel');
 const { TOKEN_KEY } = require('../handlers/constants');
 
-const generateToken = (username, userId) => {
+const generateToken = (email, userId) => {
 	const data = {
-		username,
+		email,
 		userID: userId
 	};
 
@@ -25,8 +25,8 @@ const authenticationCheck = async (req, res, next) => {
 	try {
 		jwt.verify(token, config.secret);
 		const id = getUserId(token);
-		const { email, _id, username } = await User.findById(id).lean();
-		req.user = { email, _id: _id.toString(), username };
+		const { email, _id } = await User.findById(id).lean();
+		req.user = { email, _id: _id.toString() };
 		req.isLoggedIn = true;
 	} catch (error) {
 		req.isLoggedIn = false;
@@ -54,8 +54,8 @@ const notCreatorRestriction = async (req, res, next) => {
 		const token = req.cookies[TOKEN_KEY];
 		const id = req.params.id;
 		const { userID } = jwt.decode(token, config.secret);
-		const model = await Example.findById(id).populate('creator').lean();
-		const isCreator = model.creator._id.toString() === userID;
+		const tripp = await Tripp.findById(id).populate('creator').lean();
+		const isCreator = tripp.creator._id.toString() === userID;
 
 		if (isCreator) {
 			next();

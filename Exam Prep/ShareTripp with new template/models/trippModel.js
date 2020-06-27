@@ -2,9 +2,20 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const { String, Number, ObjectId } = Schema.Types;
 
-//todo rename with real model name
-const exampleSchema = new mongoose.Schema({
-	name: {
+const trippSchema = new mongoose.Schema({
+	startPoint: {
+		type: String,
+		required: true
+	},
+	endPoint: {
+		type: String,
+		required: true
+	},
+	date: {
+		type: String,
+		required: true
+	},
+	time: {
 		type: String,
 		required: true
 	},
@@ -12,20 +23,20 @@ const exampleSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	imageUrl: {
+	carImage: {
 		type: String,
 		required: true
 	},
-	difficulty: {
+	seats: {
 		type: Number,
-		required: true,
-		max: 6
+		required: true
 	},
 	creator: {
 		type: ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
 	},
-	users: [
+	buddies: [
 		{
 			type: ObjectId,
 			ref: 'User'
@@ -33,5 +44,4 @@ const exampleSchema = new mongoose.Schema({
 	]
 });
 
-//todo rename with real model name
-module.exports = mongoose.model('Example', exampleSchema);
+module.exports = mongoose.model('Tripp', trippSchema);

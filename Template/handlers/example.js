@@ -38,8 +38,9 @@ module.exports = {
 			const { id } = req.params;
 
 			try {
-				const model = await Example.findById(id);
-				res.render('details', { ...model, isLoggedIn, username });
+				const model = await Example.findById(id).populate('creator').lean();
+				const isCreator = model.creator.username === username;
+				res.render('details', { ...model, isLoggedIn, username, isCreator });
 			} catch (error) {
 				next();
 			}
@@ -58,11 +59,11 @@ module.exports = {
 			} else {
 				const creatorId = req.user ? req.user._id : '';
 
-				const model = new Example({ ...req.body, creatorId });
+				const model = new Example({ ...req.body, creator: creatorId });
 				const { _id } = await model.save();
 				await User.findByIdAndUpdate(creatorId, {
 					$addToSet: {
-						models: [ _id ]
+						models: [ _id ] // todo rename 'models' to real collection name...
 					}
 				});
 				res.redirect('/');

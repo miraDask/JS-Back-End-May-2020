@@ -1,6 +1,6 @@
 {
-	"name": "exam-template",
-	"description": "express-js-exam",
+	"name": "cubicle-workshop",
+	"description": "workshop",
 	"authors": "author",
 	"version": "1.0.0",
 	"main": "pathToMain",
@@ -16,7 +16,7 @@
 		"express-handlebars": "^3.1.0",
 		"express-validator": "^6.6.0",
 		"jsonwebtoken": "^8.5.1",
-		"mongoose": "^5.9.18"
+		"mongoose": "^5.9.20"
 	},
 	"devDependencies": {
 		"nodemon": "^1.19.4"
