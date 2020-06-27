@@ -2,8 +2,8 @@ const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
 const service = require('../services/example');
-const userService = require('../services/users');
-const { TOKEN_KEY } = require('../controllers/constants');
+const User = require('../models/userModel');
+const { TOKEN_KEY } = require('../handlers/constants');
 
 const generateToken = (username, userId) => {
 	const data = {
@@ -25,7 +25,7 @@ const authenticationCheck = async (req, res, next) => {
 	try {
 		jwt.verify(token, config.secret);
 		const id = getUserId(token);
-		const { email, _id, username } = await userService.getById(id);
+		const { email, _id, username } = await User.findById(id).lean();
 		req.user = { email, _id: _id.toString(), username };
 		req.isLoggedIn = true;
 	} catch (error) {
@@ -57,11 +57,11 @@ const isCreatorCheck = async (req, res, next) => {
 	}
 
 	try {
-		const id = req.params.id;
-		const creatorId = await service.getCreator(id);
+		const id = req.params.id; // item id
 		const { userID } = jwt.decode(token, config.secret);
 
-		req.isCreator = creatorId === userID;
+		const user = await User.findById(id).populate('models').lean();
+		req.isCreator = JSON.stringify(user.collection).where((x) => x.creatorId === userID).length > 0;
 	} catch (error) {
 		req.isCreator = false;
 	}
@@ -73,10 +73,11 @@ const notCreatorRestriction = async (req, res, next) => {
 	try {
 		const token = req.cookies[TOKEN_KEY];
 		const id = req.params.id;
-		const creatorId = await service.getCreator(id);
 		const { userID } = jwt.decode(token, config.secret);
+		const user = await User.findById(id).populate('models').lean();
+		const isCreator = JSON.stringify(user.collection).where((x) => x.creatorId === userID).length > 0;
 
-		if (creatorId === userID) {
+		if (isCreator) {
 			next();
 		} else {
 			return res.redirect('/');
