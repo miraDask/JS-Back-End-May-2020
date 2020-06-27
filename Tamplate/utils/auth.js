@@ -1,7 +1,6 @@
 const env = process.env.NODE_ENV;
 const config = require('../config/config')[env];
 const jwt = require('jsonwebtoken');
-const service = require('../services/example');
 const User = require('../models/userModel');
 const { TOKEN_KEY } = require('../handlers/constants');
 

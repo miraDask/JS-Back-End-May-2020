@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 const { validatePassword } = require('../utils/hashing');
 
 module.exports = {
-	validateRegisterInput: [
+	validateUserRegisterInput: [
 		body('email')
 			.isEmail()
 			.withMessage('Email is not in correct format')
@@ -43,7 +43,7 @@ module.exports = {
 			.withMessage('Passwords should match.')
 	],
 
-	validateLoginInput: [
+	validateUserLoginInput: [
 		body('password')
 			.notEmpty()
 			.withMessage('Password is required')
@@ -60,5 +60,32 @@ module.exports = {
 			.withMessage('Invalid user or password.'),
 		body('username').notEmpty().withMessage('Username is required'),
 		body('email').notEmpty().withMessage('Email is required')
+	],
+
+	validateModel: [
+		body('imageUrl')
+			.notEmpty()
+			.withMessage('Image is required')
+			.custom((value) => {
+				if (!value.startsWith('http://') || !value.startsWith('https://')) {
+					return Promise.reject();
+				}
+			})
+			.withMessage('image url is invalid'),
+		body('name')
+			.notEmpty()
+			.withMessage('Name is required')
+			.isLength({ min: 3, max: 20 })
+			.withMessage('Name must be between 3 and 20 characters long'),
+		body('description')
+			.notEmpty()
+			.withMessage('Description is required')
+			.isLength({ min: 20, max: 200 })
+			.withMessage('Description must be between 20 and 200 characters long'),
+		body('difficulty')
+			.notEmpty()
+			.withMessage('Difficulty is required')
+			.isInt({ min: 1, max: 6 })
+			.withMessage('Invalid format')
 	]
 };

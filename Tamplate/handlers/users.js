@@ -23,13 +23,12 @@ module.exports = {
 	},
 
 	post: {
-		login: async (req, res, next) => {
-			const { username, email, password } = req.body;
-			let errorMessages = [];
+		login: async (req, res) => {
+			const { username, email } = req.body;
 			const errors = validationResult(req);
 
 			if (!errors.isEmpty()) {
-				errorMessages = errors.array().map((x) => x.msg);
+				const errorMessages = errors.array().map((x) => x.msg);
 				const { isLoggedIn } = req;
 				res.render('user/login', { isLoggedIn, errorMessages, username });
 			} else {
@@ -42,11 +41,10 @@ module.exports = {
 
 		register: async (req, res) => {
 			const { username, email, password } = req.body;
-			let errorMessages = [];
 
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
-				errorMessages = errors.array().map((x) => x.msg);
+				const errorMessages = errors.array().map((x) => x.msg);
 				const { isLoggedIn } = req;
 				res.render('user/register', { isLoggedIn, errorMessages, username });
 			} else {
